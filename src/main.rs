@@ -1,3 +1,4 @@
-async fn main() {
-
+use bfj_api;
+fn main() {
+    bfj_api::start();
 }

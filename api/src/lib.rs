@@ -1,17 +1,21 @@
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::Router;
 use bfj_db::{db_conn, DB};
+use route::CustCreate;
 use sea_orm::DatabaseConnection;
+use std::env;
+mod route;
 
 #[tokio::main]
 pub async fn start() -> anyhow::Result<()> {
+    let db = DB.get_or_init(db_conn).await.to_owned();
+    let port = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let state = AppState { db };
+
     // build our application with a single route
-    let app = Router::new().route("/", get(hello::index));
+    let app = Router::new().with_route().with_state(state);
 
     // run it with hyper on localhost:3000
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    axum::Server::bind(&format!("0.0.0.0:{port}",).parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
