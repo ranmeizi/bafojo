@@ -9,12 +9,12 @@ pub enum TimeOpt {
 
 #[derive(Iden)]
 enum TimeCol {
-    CreateAt,
-    CreateBy,
-    CreateByStr,
-    UpdateAt,
-    UpdateBy,
-    UpdateByStr,
+    CreatedAt,
+    CreatedBy,
+    CreatedByStr,
+    UpdatedAt,
+    UpdatedBy,
+    UpdatedByStr,
 }
 
 pub fn add_time_col(
@@ -38,16 +38,16 @@ pub fn add_time_col(
 }
 
 fn with_create(tcs: &mut TableCreateStatement) -> &mut TableCreateStatement {
-    tcs.col(ColumnDef::new(TimeCol::CreateAt).timestamp())
-        .col(ColumnDef::new(TimeCol::CreateBy).integer())
+    tcs.col(ColumnDef::new(TimeCol::CreatedAt).timestamp())
+        .col(ColumnDef::new(TimeCol::CreatedBy).integer())
 }
 
 fn with_update(tcs: &mut TableCreateStatement) -> &mut TableCreateStatement {
-    tcs.col(ColumnDef::new(TimeCol::UpdateAt).timestamp())
-        .col(ColumnDef::new(TimeCol::UpdateBy).integer())
+    tcs.col(ColumnDef::new(TimeCol::UpdatedAt).timestamp())
+        .col(ColumnDef::new(TimeCol::UpdatedBy).integer())
 }
 
 fn with_str(tcs: &mut TableCreateStatement) -> &mut TableCreateStatement {
-    tcs.col(ColumnDef::new(TimeCol::CreateByStr).timestamp())
-        .col(ColumnDef::new(TimeCol::UpdateByStr).integer())
+    tcs.col(ColumnDef::new(TimeCol::CreatedByStr).timestamp())
+        .col(ColumnDef::new(TimeCol::UpdatedByStr).integer())
 }

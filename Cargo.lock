@@ -35,6 +35,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.71"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
+
+[[package]]
 name = "arrayvec"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -273,14 +279,7 @@ dependencies = [
 name = "bafojo"
 version = "0.1.0"
 dependencies = [
- "axum",
- "entity",
- "hyper",
- "migration",
- "sea-orm",
- "tokio",
- "toml 0.7.3",
- "tower",
+ "bfj-api",
 ]
 
 [[package]]
@@ -288,6 +287,27 @@ name = "base64ct"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
+
+[[package]]
+name = "bfj-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "hyper",
+ "sea-orm",
+ "tokio",
+ "toml 0.7.3",
+ "tower",
+]
+
+[[package]]
+name = "bfj-db"
+version = "0.1.0"
+dependencies = [
+ "sea-orm",
+ "tokio",
+]
 
 [[package]]
 name = "bigdecimal"
@@ -502,6 +522,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4c78c047431fee22c1a7bb92e00ad095a02a983affe4d8a72e2a2c62c1b94f3"
 
 [[package]]
+name = "core"
+version = "0.1.0"
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -657,6 +681,7 @@ name = "entity"
 version = "0.1.0"
 dependencies = [
  "sea-orm",
+ "serde",
 ]
 
 [[package]]

@@ -2,5 +2,8 @@
 
 pub mod prelude;
 
+pub mod sys_rel_role_resource;
+pub mod sys_rel_user_role;
+pub mod sys_resource;
 pub mod sys_role;
 pub mod sys_user;
