@@ -4,11 +4,12 @@ use route::CustCreate;
 use sea_orm::DatabaseConnection;
 use std::env;
 mod route;
+mod system;
 
 #[tokio::main]
 pub async fn start() -> anyhow::Result<()> {
     let db = DB.get_or_init(db_conn).await.to_owned();
-    let port = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let port = env::var("PORT").expect("PORT is not set in .env file");
     let state = AppState { db };
 
     // build our application with a single route

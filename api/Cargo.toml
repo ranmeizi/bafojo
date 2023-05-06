@@ -6,12 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
-axum = "0.6.12"
-hyper = { version = "0.14.25", features = ["full"] }
-sea-orm = { version = "0.11.3", features = [ "sqlx-mysql", "runtime-tokio-native-tls", "macros" ] }
-tokio = { version = "1.27.0", features = ["full"] }
-toml = "0.7.3"
-tower = "0.4.13"
+anyhow = { workspace = true }
+axum = { workspace = true }
+hyper = { workspace = true }
+sea-orm = { workspace = true }
+tokio = { workspace = true }
+toml = { workspace = true }
+tower = { workspace = true }
 bfj-db = { path = "../db" }
+bfj-core = { path = "../core" }
 
