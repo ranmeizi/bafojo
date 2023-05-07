@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 tokio = { workspace = true }
 sea-orm = { workspace = true }
+serde = { workspace = true }

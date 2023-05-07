@@ -1,0 +1,13 @@
+{
+  "name": "bafojo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ranmeizi/bafojo.git",
+  "author": "boboan <360969885@qq.com>",
+  "license": "MIT",
+  "scripts": {
+    "up": "sea-orm-cli migrate up",
+    "down": "sea-orm-cli migrate down",
+    "entity": "sea-orm-cli generate entity -o db/src/entity --with-serde both"
+  }
+}

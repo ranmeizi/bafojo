@@ -291,6 +291,7 @@ name = "bafojo"
 version = "0.1.0"
 dependencies = [
  "bfj-api",
+ "dotenvy",
 ]
 
 [[package]]
@@ -319,6 +320,7 @@ name = "bfj-core"
 version = "0.1.0"
 dependencies = [
  "bfj-db",
+ "sea-orm",
 ]
 
 [[package]]
@@ -326,6 +328,7 @@ name = "bfj-db"
 version = "0.1.0"
 dependencies = [
  "sea-orm",
+ "serde",
  "tokio",
 ]
 

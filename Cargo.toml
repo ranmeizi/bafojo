@@ -10,6 +10,7 @@ edition = "2021"
 
 [dependencies]
 bfj-api = { path = "api" } # depends on your needs
+dotenvy = "0.15.0"
 
 [workspace.dependencies]
 anyhow = "1.0"

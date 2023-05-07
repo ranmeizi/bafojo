@@ -1,6 +1,6 @@
 use axum::Router;
 use bfj_db::{db_conn, DB};
-use route::CustCreate;
+use route::api;
 use sea_orm::DatabaseConnection;
 use std::env;
 mod route;
@@ -13,7 +13,7 @@ pub async fn start() -> anyhow::Result<()> {
     let state = AppState { db };
 
     // build our application with a single route
-    let app = Router::new().with_route().with_state(state);
+    let app = Router::new().with_state(state).nest("/", api());
 
     // run it with hyper on localhost:3000
     axum::Server::bind(&format!("0.0.0.0:{port}",).parse().unwrap())

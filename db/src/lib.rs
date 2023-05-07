@@ -3,6 +3,8 @@ use std::env;
 use std::time::Duration;
 use tokio::sync::OnceCell;
 
+pub mod entity;
+
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 
 pub async fn db_conn() -> DatabaseConnection {
