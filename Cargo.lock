@@ -310,6 +310,7 @@ dependencies = [
  "bfj-db",
  "hyper",
  "sea-orm",
+ "serde",
  "tokio",
  "toml 0.7.3",
  "tower",
