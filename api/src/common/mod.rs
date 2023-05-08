@@ -1,2 +1,1 @@
-mod res;
-mod error;
+pub mod res;

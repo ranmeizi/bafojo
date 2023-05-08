@@ -5,6 +5,7 @@ use sea_orm::DatabaseConnection;
 use std::env;
 mod route;
 mod system;
+mod common;
 
 #[tokio::main]
 pub async fn start() -> anyhow::Result<()> {
