@@ -1,5 +1,5 @@
 [package]
-name = "bfj-api"
+name = "bfj-middleware"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,15 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 axum = { workspace = true }
-axum-extra = { workspace = true }
+chrono = { workspace = true }
 hyper = { workspace = true }
-sea-orm = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tokio = { workspace = true }
-toml = { workspace = true }
-tower = { workspace = true }
-bfj-db = { path = "../db" }
-bfj-core = { path = "../core" }
-bfj-middleware = { path = "../middleware" }
-

@@ -1,11 +1,12 @@
-use axum::Router;
+use axum::{middleware, Router};
 use bfj_db::{db_conn, DB};
+use bfj_middleware::json_timer;
 use route::api;
 use sea_orm::DatabaseConnection;
 use std::env;
+mod common;
 mod route;
 mod system;
-mod common;
 
 #[tokio::main]
 pub async fn start() -> anyhow::Result<()> {
@@ -14,7 +15,10 @@ pub async fn start() -> anyhow::Result<()> {
     let state = AppState { db };
 
     // build our application with a single route
-    let app = Router::new().with_state(state).nest("/", api());
+    let app = Router::new()
+        .with_state(state)
+        .nest("/", api())
+        .layer(middleware::from_fn(json_timer));
 
     // run it with hyper on localhost:3000
     axum::Server::bind(&format!("0.0.0.0:{port}",).parse().unwrap())

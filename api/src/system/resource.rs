@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::common::error::ERR_TEST;
 use crate::common::res::Res;
 use anyhow::Ok;
@@ -9,6 +11,7 @@ use axum::{
 use axum_extra::extract::WithRejection;
 use bfj_core::system::resource;
 use serde::Deserialize;
+use tokio::time::sleep;
 
 #[derive(Debug, Deserialize)]
 pub struct A {
@@ -25,6 +28,7 @@ pub struct B {
 pub async fn query(
     WithRejection(pagination, _): WithRejection<Query<A>, Res<()>>,
 ) -> impl IntoResponse {
+    sleep(Duration::from_millis(1000)).await;
     (
         StatusCode::OK,
         AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
@@ -48,6 +52,7 @@ pub struct AddResourceParams {
 pub async fn create(
     WithRejection(params, _): WithRejection<Json<AddResourceParams>, Res<()>>,
 ) -> impl IntoResponse {
+    println!("api");
     (
         StatusCode::UNAUTHORIZED,
         AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
