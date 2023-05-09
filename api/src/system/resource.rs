@@ -1,13 +1,14 @@
+use crate::common::error::ERR_TEST;
+use crate::common::res::Res;
 use anyhow::Ok;
 use axum::{
-    extract::{Form, Json, Path, Query, State },
+    extract::{Form, Json, Path, Query, State},
     http::{header::SET_COOKIE, StatusCode},
     response::{AppendHeaders, IntoResponse},
 };
 use axum_extra::extract::WithRejection;
 use bfj_core::system::resource;
 use serde::Deserialize;
-use crate::common::res::CommonRes;
 
 #[derive(Debug, Deserialize)]
 pub struct A {
@@ -21,25 +22,13 @@ pub struct B {
 }
 
 // 获取分页列表
-pub async fn query(WithRejection(pagination,_): WithRejection<Query<A>,CommonRes<()>>) -> impl IntoResponse {
-    println!("list:{:?}", pagination);
-
-    let body = String::from("hey");
-    // String::from("query")
-    // (
-    //     StatusCode::CREATED,
-    //     Ok(set_some_cookies),
-    //     // append two `set-cookie` headers to the response
-    //     // without overriding the ones added by `set_some_cookies`
-    //     AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
-    // )
-    // AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")])
-    let code: u16 = StatusCode::CREATED.into();
-    println!("{}", code);
+pub async fn query(
+    WithRejection(pagination, _): WithRejection<Query<A>, Res<()>>,
+) -> impl IntoResponse {
     (
-        StatusCode::CREATED,
+        StatusCode::OK,
         AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
-        body,
+        Res::success(String::from("success body")),
     )
 }
 
@@ -56,18 +45,23 @@ pub struct AddResourceParams {
 }
 
 // 创建资源
-pub async fn create(Json(params): Json<AddResourceParams>) -> String {
-    String::from("create")
-    // Res {
-    //     code: Some(200),
-    //     data: Some(String::from("value")),
-    //     msg: Some(String::from("ss")),
-    // }
+pub async fn create(
+    WithRejection(params, _): WithRejection<Json<AddResourceParams>, Res<()>>,
+) -> impl IntoResponse {
+    (
+        StatusCode::UNAUTHORIZED,
+        AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
+        Res::code_error(StatusCode::UNAUTHORIZED),
+    )
 }
 
 // 更新资源
-pub async fn update() -> String {
-    String::from("update")
+pub async fn update() -> impl IntoResponse {
+    (
+        StatusCode::UNAUTHORIZED,
+        AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
+        Res::cust_error(ERR_TEST),
+    )
 }
 
 // 使用 id 获取资源
