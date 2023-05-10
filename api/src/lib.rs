@@ -16,8 +16,8 @@ pub async fn start() -> anyhow::Result<()> {
 
     // build our application with a single route
     let app = Router::new()
-        .with_state(state)
         .nest("/", api())
+        .with_state(state)
         .layer(middleware::from_fn(json_timer));
 
     // run it with hyper on localhost:3000
@@ -30,6 +30,8 @@ pub async fn start() -> anyhow::Result<()> {
 }
 
 #[derive(Clone)]
-struct AppState {
+pub struct AppState {
     db: DatabaseConnection,
 }
+
+pub type RouterType = Router<AppState>;

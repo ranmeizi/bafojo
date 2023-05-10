@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 bfj-db = { path = "../db" }
+chrono = { workspace = true }
 sea-orm = { workspace = true }
+serde = { workspace = true }

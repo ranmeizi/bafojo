@@ -2,16 +2,17 @@ use axum::{
     routing::{delete, get, patch, post},
     Router,
 };
+use crate::RouterType;
 
 mod resource;
 mod role;
 mod user;
 
-pub fn system_routes() -> Router {
+pub fn system_routes() -> RouterType {
     Router::new().nest("/resource", resource_api())
 }
 
-pub fn resource_api() -> Router {
+pub fn resource_api() -> RouterType {
     Router::new()
         .route("/", get(resource::query).post(resource::create))
         .route(

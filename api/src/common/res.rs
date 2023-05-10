@@ -31,9 +31,17 @@ impl<T: Serialize> Res<T> {
             msg: Some(String::from("success")),
         }
     }
-}
 
-impl Res<()> {
+    /**
+     * 普遍成功body 带有msg
+     */
+    pub fn success_msg(data: T, msg: &str) -> Self {
+        Self {
+            code: Some(StatusCode::OK.as_u16()),
+            data: Some(data),
+            msg: Some(String::from(msg)),
+        }
+    }
     /**
      * 普遍错误body
      */
@@ -44,7 +52,16 @@ impl Res<()> {
             msg: Some(String::from(c.canonical_reason().unwrap())),
         }
     }
-
+    /**
+     * 普遍错误body
+     */
+    pub fn code_error_msg(c: StatusCode, msg: &str) -> Self {
+        Self {
+            code: Some(c.as_u16()),
+            data: None,
+            msg: Some(String::from(msg)),
+        }
+    }
     /**
      * 自定义错误body
      */
@@ -86,7 +103,7 @@ impl From<QueryRejection> for Res<()> {
 impl<T: Serialize> IntoResponse for Res<T> {
     fn into_response(self) -> axum::response::Response {
         let payload = json!(self);
-        (StatusCode::FAILED_DEPENDENCY, Json(payload)).into_response()
+        (StatusCode::OK, Json(payload)).into_response()
     }
 }
 
