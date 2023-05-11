@@ -1,8 +1,8 @@
+use crate::RouterType;
 use axum::{
     routing::{delete, get, patch, post},
     Router,
 };
-use crate::RouterType;
 
 mod resource;
 mod role;

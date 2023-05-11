@@ -106,11 +106,3 @@ impl<T: Serialize> IntoResponse for Res<T> {
         (StatusCode::OK, Json(payload)).into_response()
     }
 }
-
-#[derive(Debug, Serialize)]
-pub struct Page<T> {
-    record: Vec<T>,
-    total: usize,
-    current: usize,
-    page_size: usize,
-}

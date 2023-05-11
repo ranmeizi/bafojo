@@ -8,12 +8,18 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub uid: String,
     pub uname: String,
     pub psw: String,
     pub nickname: Option<String>,
     pub sex: Option<String>,
     pub mobile: Option<String>,
     pub email: Option<String>,
+    pub enabled: Option<i8>,
+    pub col1: Option<String>,
+    pub col2: Option<String>,
+    pub col3: Option<String>,
     pub created_at: Option<DateTimeUtc>,
     pub created_by: Option<i32>,
     pub updated_at: Option<DateTimeUtc>,

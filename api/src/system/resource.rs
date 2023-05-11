@@ -7,22 +7,15 @@ use axum_extra::extract::WithRejection;
 use bfj_core::{
     entity::sys_resource,
     system::resource::{self, Mutation, Query},
+    PageParams,
 };
 use sea_orm::TryIntoModel;
 use serde::Deserialize;
-use serde_json::json;
 use std::time::Duration;
 use tokio::time::sleep;
 
-use crate::common::error::ERR_TEST;
 use crate::common::res::Res;
 use crate::AppState;
-
-#[derive(Debug, Deserialize)]
-pub struct A {
-    page_num: usize,
-    page_size: usize,
-}
 
 #[derive(Debug, Deserialize)]
 pub struct B {
@@ -31,22 +24,23 @@ pub struct B {
 
 // 获取分页列表
 pub async fn query(
-    WithRejection(page_params, _): WithRejection<ReqQuery<A>, Res<()>>,
+    state: State<AppState>,
+    WithRejection(page_params, _): WithRejection<ReqQuery<PageParams>, Res>,
+    WithRejection(params, _): WithRejection<ReqQuery<resource::QueryResourceListParams>, Res>,
 ) -> impl IntoResponse {
-    sleep(Duration::from_millis(1000)).await;
-    (
-        StatusCode::OK,
-        AppendHeaders([(SET_COOKIE, "foo=bar"), (SET_COOKIE, "baz=qux")]),
-        Res::success(String::from("success body")),
-    )
+    let res = Query::get_resource_list(&state.db, page_params.0, params.0).await;
+
+    match res {
+        Ok(data) => Res::success(data),
+        Err(e) => Res::code_error_msg(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()),
+    }
 }
 
 // 创建资源
 pub async fn create(
     state: State<AppState>,
-    WithRejection(params, _): WithRejection<Json<resource::AddResourceParams>, Res<()>>,
+    WithRejection(params, _): WithRejection<Json<resource::AddResourceParams>, Res>,
 ) -> impl IntoResponse {
-    println!("{:?}", params.0);
     let res = Mutation::create_resource(&state.db, params.0).await;
 
     match res {
