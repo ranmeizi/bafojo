@@ -8,10 +8,10 @@ use bfj_core::{
     system::resource::{self, Mutation, Query},
     PageParams,
 };
+use bfj_common::res::Res;
 use sea_orm::TryIntoModel;
 use serde::Deserialize;
 
-use crate::common::res::Res;
 use crate::AppState;
 
 // 获取分页列表

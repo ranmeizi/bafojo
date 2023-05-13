@@ -1,5 +1,5 @@
 use core::fmt;
-use std::format;
+use std::{format, println};
 
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
@@ -102,9 +102,13 @@ impl Mutation {
         params: AddResourceParams,
     ) -> Result<sys_resource::Model> {
         // 判断 parent 是否存在，否则会产生脏数据
-        if params.parent.ne("root") && Query::check_unique_code(db, &params.parent).await? {
+        println!("??:{}", params.parent.ne("root"));
+        if params.parent.ne("root") && !Query::check_unique_code(db, &params.parent).await? {
             // 响应错误
-            return Err(anyhow!("params.parent 不存在"));
+            return Err(anyhow!(
+                "请检查 params.parent,当前不存在 code = {} 的行",
+                params.parent
+            ));
         }
 
         let resource = sys_resource::ActiveModel {
@@ -116,7 +120,7 @@ impl Mutation {
             title: Set(params.title),
             url: Set(params.url),
             desc: Set(params.desc),
-            order_id: Set(Some(params.order_id.unwrap_or_default())),
+            order: Set(Some(params.order.unwrap_or_default())),
             ..Default::default()
         }
         .insert(db)
@@ -151,8 +155,8 @@ impl Mutation {
             resource.desc = Set(Some(desc));
         }
 
-        if let Some(order_id) = params.order_id {
-            resource.order_id = Set(Some(order_id));
+        if let Some(order) = params.order {
+            resource.order = Set(Some(order));
         }
 
         let resource: sys_resource::Model = resource.update(db).await?;
@@ -181,7 +185,7 @@ pub struct AddResourceParams {
     title: Option<String>,
     url: Option<String>,
     desc: Option<String>,
-    order_id: Option<i8>,
+    order: Option<i16>,
 }
 
 /**
@@ -194,7 +198,7 @@ pub struct UpdateResourceParams {
     title: Option<String>,
     url: Option<String>,
     desc: Option<String>,
-    order_id: Option<i8>,
+    order: Option<i16>,
 }
 
 /**

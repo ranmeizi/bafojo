@@ -138,7 +138,7 @@ enum SysResource {
     Url,
     Title,
     Desc,
-    OrderId,
+    Order,
     Enabled,
 }
 // 创建 资源 表
@@ -187,7 +187,7 @@ async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .extra("COMMENT '资源描述'".to_owned()),
         )
         .col(
-            ColumnDef::new(SysResource::OrderId)
+            ColumnDef::new(SysResource::Order)
                 .small_integer()
                 .default(0)
                 .extra("COMMENT '排序字段 默认为0'".to_owned()),

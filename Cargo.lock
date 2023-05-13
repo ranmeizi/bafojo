@@ -329,16 +329,29 @@ dependencies = [
  "anyhow",
  "axum",
  "axum-extra",
+ "bfj-common",
  "bfj-core",
- "bfj-db",
  "bfj-middleware",
  "hyper",
  "sea-orm",
  "serde",
  "serde_json",
+ "thiserror",
  "tokio",
  "toml 0.7.3",
  "tower",
+]
+
+[[package]]
+name = "bfj-common"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -346,19 +359,10 @@ name = "bfj-core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "bfj-db",
+ "bfj-common",
  "chrono",
  "sea-orm",
  "serde",
-]
-
-[[package]]
-name = "bfj-db"
-version = "0.1.0"
-dependencies = [
- "sea-orm",
- "serde",
- "tokio",
 ]
 
 [[package]]

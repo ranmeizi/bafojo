@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "api", "core", "db", "migration","middleware"]
+members = [".", "api", "core", "common", "migration","middleware"]
 
 [package]
 name = "bafojo"
@@ -14,6 +14,7 @@ dotenvy = "0.15.0"
 
 [workspace.dependencies]
 anyhow = "1.0"
+thiserror ="1.0"
 axum = "0.6.12"
 axum-extra = "0"
 chrono = "0"

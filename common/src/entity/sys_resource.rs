@@ -14,7 +14,7 @@ pub struct Model {
     pub title: Option<String>,
     pub url: Option<String>,
     pub desc: Option<String>,
-    pub order_id: Option<i8>,
+    pub order: Option<i16>,
     pub enabled: Option<i8>,
     pub created_at: Option<DateTimeUtc>,
     pub created_by: Option<i32>,

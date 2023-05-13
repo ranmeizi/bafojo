@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
-bfj-db = { path = "../db" }
+bfj-common = { path = "../common" }
 chrono = { workspace = true }
 sea-orm = { workspace = true }
 serde = { workspace = true }

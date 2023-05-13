@@ -1,5 +1,5 @@
 pub mod system;
-pub use bfj_db::entity;
+pub use bfj_common::entity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]

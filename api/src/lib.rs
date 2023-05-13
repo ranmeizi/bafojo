@@ -1,10 +1,9 @@
 use axum::{middleware, Router};
-use bfj_db::{db_conn, DB};
+use bfj_common::{db_conn, DB,res};
 use bfj_middleware::json_timer;
 use route::api;
 use sea_orm::DatabaseConnection;
 use std::env;
-mod common;
 mod route;
 mod system;
 
