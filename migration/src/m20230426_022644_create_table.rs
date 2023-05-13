@@ -44,7 +44,6 @@ impl MigrationTrait for Migration {
 enum SysUser {
     Table,
     Id,
-    Uid,
     Uname,
     Psw,
     Nickname,
@@ -65,13 +64,8 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
             ColumnDef::new(SysUser::Id)
                 .integer()
                 .not_null()
-                .auto_increment()
-        )
-        .col(
-            ColumnDef::new(SysUser::Uid)
-                .string_len(64)
-                .not_null()
-                .extra("COMMENT '系统用户唯一id'".to_owned()),
+                .primary_key()
+                .auto_increment(),
         )
         .col(
             ColumnDef::new(SysUser::Uname)
@@ -108,6 +102,7 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .col(
             ColumnDef::new(SysUser::Enabled)
                 .boolean()
+                .default(true)
                 .extra("COMMENT '启用状态'".to_owned()),
         )
         .col(
@@ -125,13 +120,6 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .string_len(200)
                 .extra("COMMENT '备用字段3'".to_owned()),
         )
-        .primary_key(
-            Index::create()
-                .name("pk-user")
-                .col(SysUser::Id)
-                .col(SysUser::Uid)
-                .primary(),
-        )
         .to_owned();
 
     // 添加时间字段
@@ -143,15 +131,15 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
 #[derive(Iden)]
 enum SysResource {
     Table,
-    Id,
     Code,
-    Pid,
+    Parent,
     Name,
     Type,
     Url,
     Title,
     Desc,
     OrderId,
+    Enabled,
 }
 // 创建 资源 表
 async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
@@ -159,21 +147,17 @@ async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .if_not_exists()
         .table(SysResource::Table)
         .col(
-            ColumnDef::new(SysResource::Id)
-                .integer()
-                .not_null()
-                .auto_increment()
-                .primary_key(),
-        )
-        .col(
             ColumnDef::new(SysResource::Code)
                 .string_len(30)
+                .not_null()
+                .primary_key()
                 .extra("COMMENT '权限码'".to_owned()),
         )
         .col(
-            ColumnDef::new(SysResource::Pid)
-                .integer()
-                .extra("COMMENT '父id'".to_owned()),
+            ColumnDef::new(SysResource::Parent)
+                .string_len(30)
+                .not_null()
+                .extra("COMMENT '父级权限码'".to_owned()),
         )
         .col(
             ColumnDef::new(SysResource::Name)
@@ -204,9 +188,15 @@ async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         )
         .col(
             ColumnDef::new(SysResource::OrderId)
-                .tiny_integer()
+                .small_integer()
                 .default(0)
                 .extra("COMMENT '排序字段 默认为0'".to_owned()),
+        )
+        .col(
+            ColumnDef::new(SysResource::Enabled)
+                .boolean()
+                .default(true)
+                .extra("COMMENT '启用状态'".to_owned()),
         )
         .to_owned();
 
@@ -264,7 +254,7 @@ enum SysRelRoleResource {
 }
 // 创建 角色资源关联 表
 async fn create_rel_role_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
-    let mut tcs: TableCreateStatement = Table::create()
+    let tcs: TableCreateStatement = Table::create()
         .if_not_exists()
         .table(SysRelRoleResource::Table)
         .col(
@@ -300,7 +290,7 @@ enum SysRelUserRole {
 }
 // 创建 用户角色关联 表
 async fn create_rel_user_role(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
-    let mut tcs: TableCreateStatement = Table::create()
+    let tcs: TableCreateStatement = Table::create()
         .if_not_exists()
         .table(SysRelUserRole::Table)
         .col(

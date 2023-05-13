@@ -6,16 +6,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "sys_resource")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub id: i32,
-    pub code: Option<String>,
-    pub pid: Option<i32>,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub code: String,
+    pub parent: String,
     pub name: String,
     pub r#type: String,
     pub title: Option<String>,
     pub url: Option<String>,
     pub desc: Option<String>,
     pub order_id: Option<i8>,
+    pub enabled: Option<i8>,
     pub created_at: Option<DateTimeUtc>,
     pub created_by: Option<i32>,
     pub updated_at: Option<DateTimeUtc>,

@@ -8,8 +8,6 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub uid: String,
     pub uname: String,
     pub psw: String,
     pub nickname: Option<String>,

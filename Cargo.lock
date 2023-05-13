@@ -345,6 +345,7 @@ dependencies = [
 name = "bfj-core"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bfj-db",
  "chrono",
  "sea-orm",
