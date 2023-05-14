@@ -1,4 +1,4 @@
-use super::error::CustErrPairs;
+use super::error::{CustErr, CustErrPairs};
 use axum::{
     body::{self, Full},
     extract::rejection::{JsonRejection, QueryRejection},
@@ -8,7 +8,9 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::fmt::Debug;
+use std::{fmt::Debug, println};
+// use std::error::Error;
+use anyhow::Error;
 
 /**
  * 统一响应结构
@@ -65,11 +67,12 @@ impl<T: Serialize> Res<T> {
     /**
      * 自定义错误body
      */
-    pub fn cust_error(c: CustErrPairs) -> Self {
+    pub fn cust_error(e: Error) -> Self {
+        println!("SOURCE {:?}",e.downcast_ref::<CustErr>());
         Self {
-            code: Some(c.0),
+            code: Some(400),
             data: None,
-            msg: Some(String::from(c.1)),
+            msg: Some(e.to_string()),
         }
     }
 }

@@ -1,5 +1,5 @@
 use axum::{middleware, Router};
-use bfj_common::{db_conn, DB,res};
+use bfj_common::{db_conn, res, DB};
 use bfj_middleware::json_timer;
 use route::api;
 use sea_orm::DatabaseConnection;

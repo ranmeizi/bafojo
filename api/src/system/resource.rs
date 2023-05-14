@@ -37,7 +37,7 @@ pub async fn create(
 
     match res {
         Ok(data) => Res::success(data),
-        Err(e) => Res::code_error_msg(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()),
+        Err(e) => Res::cust_error(e),
     }
 }
 

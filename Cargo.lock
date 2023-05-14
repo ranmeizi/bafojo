@@ -346,6 +346,7 @@ dependencies = [
 name = "bfj-common"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "sea-orm",
  "serde",

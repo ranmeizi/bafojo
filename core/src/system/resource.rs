@@ -10,6 +10,7 @@ use sea_orm::{
     QueryOrder, QuerySelect, Select, Set,
 };
 use serde::Deserialize;
+use bfj_common::error::CustErr;
 
 enum ResourceType {
     Permission,
@@ -105,10 +106,7 @@ impl Mutation {
         println!("??:{}", params.parent.ne("root"));
         if params.parent.ne("root") && !Query::check_unique_code(db, &params.parent).await? {
             // 响应错误
-            return Err(anyhow!(
-                "请检查 params.parent,当前不存在 code = {} 的行",
-                params.parent
-            ));
+            return Err(CustErr::ReqParamError.into());
         }
 
         let resource = sys_resource::ActiveModel {
