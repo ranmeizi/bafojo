@@ -3,19 +3,15 @@ use std::{format, println};
 
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{anyhow, Result};
+use bfj_common::entity::sys_resource::ResourceType;
+use bfj_common::error::CustErr;
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
     QueryOrder, QuerySelect, Select, Set,
 };
 use serde::Deserialize;
-use bfj_common::error::CustErr;
-
-enum ResourceType {
-    Permission,
-    PermissionMenu,
-}
 
 pub struct Query {}
 pub struct Mutation {}
@@ -102,16 +98,25 @@ impl Mutation {
         db: &DatabaseConnection,
         params: AddResourceParams,
     ) -> Result<sys_resource::Model> {
+        // 判断 type 是否安全
+        let r#type = match TryInto::<sys_resource::ResourceType>::try_into(params.r#type) {
+            Ok(t) => t,
+            Err(e) => {
+                // 响应错误
+                return Err(CustErr::ReqParamError("type 值超出枚举范围".to_owned()).into());
+            }
+        };
+
+
         // 判断 parent 是否存在，否则会产生脏数据
-        println!("??:{}", params.parent.ne("root"));
         if params.parent.ne("root") && !Query::check_unique_code(db, &params.parent).await? {
             // 响应错误
-            return Err(CustErr::ReqParamError.into());
+            return Err(CustErr::ReqParamError("不存在的parent".to_owned()).into());
         }
 
         let resource = sys_resource::ActiveModel {
             name: Set(params.name.to_owned()),
-            r#type: Set(params.r#type.to_owned()),
+            r#type: Set(r#type),
             created_at: Set(Some(Utc::now())),
             code: Set(params.code),
             parent: Set(params.parent),

@@ -6,6 +6,7 @@ use tokio::sync::OnceCell;
 pub mod res;
 pub mod error;
 pub mod entity;
+pub mod enums;
 
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 

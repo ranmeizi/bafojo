@@ -68,9 +68,20 @@ impl<T: Serialize> Res<T> {
      * 自定义错误body
      */
     pub fn cust_error(e: Error) -> Self {
-        println!("SOURCE {:?}",e.downcast_ref::<CustErr>());
+
+        // 判断code值 默认为500，因为预期之外的错误统一归为服务端错误
+
+        let code = if e.downcast_ref::<CustErr>().is_some() {
+            match e.downcast_ref::<CustErr>() {
+                Some(CustErr::ReqParamError(_)) => 400,
+                None => 500,
+            }
+        } else {
+            500
+        };
+
         Self {
-            code: Some(400),
+            code: Some(code),
             data: None,
             msg: Some(e.to_string()),
         }
