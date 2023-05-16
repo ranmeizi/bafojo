@@ -8,6 +8,7 @@
   "scripts": {
     "up": "sea-orm-cli migrate up",
     "down": "sea-orm-cli migrate down",
-    "entity": "sea-orm-cli generate entity -o db/src/entity --with-serde both"
+    "entity": "sea-orm-cli generate entity -o db/src/entity --with-serde both",
+    "gen-snippets":"node tool/readline.js"
   }
 }

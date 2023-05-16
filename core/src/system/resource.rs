@@ -1,15 +1,11 @@
-use core::fmt;
-use std::{format, println};
-
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
-use bfj_common::entity::sys_resource::ResourceType;
 use bfj_common::error::CustErr;
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
-    QueryOrder, QuerySelect, Select, Set,
+    QueryOrder, Set,
 };
 use serde::Deserialize;
 
@@ -85,6 +81,17 @@ impl Query {
             .await?;
         Ok(count > 0)
     }
+
+    /**
+     * 是否存在关联子节点
+     */
+    pub async fn check_has_child(db: &DatabaseConnection, parent: &str) -> Result<bool> {
+        let count = sys_resource::Entity::find()
+            .filter(sys_resource::Column::Parent.eq(parent))
+            .count(db)
+            .await?;
+        Ok(count > 0)
+    }
 }
 
 /**
@@ -106,7 +113,6 @@ impl Mutation {
                 return Err(CustErr::ReqParamError("type 值超出枚举范围".to_owned()).into());
             }
         };
-
 
         // 判断 parent 是否存在，否则会产生脏数据
         if params.parent.ne("root") && !Query::check_unique_code(db, &params.parent).await? {
@@ -168,7 +174,11 @@ impl Mutation {
     }
 
     pub async fn delete_resource_by_id(db: &DatabaseConnection, id: String) -> Result<()> {
-        // TODO 删除前检查是否有对应parentid
+        // 判断 是否有 parent 为 id 的数据，存在则不允许删除
+        if Query::check_has_child(db, &id).await? {
+            // 响应错误
+            return Err(CustErr::ReqDeleteFail(format!("存在 parent = {id} 的数据，请删除后重试")).into());
+        }
 
         sys_resource::Entity::delete_by_id(&id).exec(db).await?;
 
@@ -212,8 +222,4 @@ pub struct QueryResourceListParams {
     // 查询字符串  模糊查询  name/code/title
     search: Option<String>,
     r#type: Option<String>,
-}
-
-pub struct UniqueColumn {
-    code: Option<String>,
 }

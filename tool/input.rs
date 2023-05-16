@@ -10,7 +10,7 @@ impl Query {
     /**
      * 获取列表
      */
-    pub async fn get_role_list(db: &DatabaseConnection, page_params: PageParams)
+    pub async fn get_resource_list(db: &DatabaseConnection, page_params: PageParams)
     // -> Result<PageData<>>
     {
         let page_num = page_params.page_num.unwrap_or(1);
@@ -39,22 +39,22 @@ impl Query {
     /**
      * 按id查询
      */
-    pub async fn find_role_by_id(db: &DatabaseConnection, id: i32) {}
+    pub async fn find_resource_by_id(db: &DatabaseConnection, id: i32) {}
 }
 
 impl Mutation {
     /**
      * 创建
      */
-    pub async fn create_role(db: &DatabaseConnection) {}
+    pub async fn create_resource(db: &DatabaseConnection) {}
 
     /**
      * 更新
      */
-    pub async fn update_role(db: &DatabaseConnection) {}
+    pub async fn update_resource(db: &DatabaseConnection) {}
 
     /**
      * 删除
      */
-    pub async fn delete_role_by_id(db: &DatabaseConnection, id: i32){}
+    pub async fn delete_resource_by_id(db: &DatabaseConnection, id: i32){}
 }

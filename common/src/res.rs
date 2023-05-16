@@ -67,14 +67,13 @@ impl<T: Serialize> Res<T> {
     /**
      * 自定义错误body
      */
-    pub fn cust_error(e: Error) -> Self {
-
+    pub fn error(e: Error) -> Self {
         // 判断code值 默认为500，因为预期之外的错误统一归为服务端错误
-
         let code = if e.downcast_ref::<CustErr>().is_some() {
             match e.downcast_ref::<CustErr>() {
-                Some(CustErr::ReqParamError(_)) => 400,
-                None => 500,
+                // Some(CustErr::ReqParamError(_)) => 400,
+                // Some(CustErr::ReqDeleteFail(_)) => 400,
+                _ => 400,
             }
         } else {
             500
