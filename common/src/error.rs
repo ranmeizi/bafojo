@@ -8,5 +8,8 @@ pub enum CustErr {
     ReqParamError(String),
 
     #[error("something wrong when Delete : {0}")]
-    ReqDeleteFail(String)
+    ReqDeleteFail(String),
+
+    #[error("app rule : {0}")]
+    AppRuleError(String)
 }

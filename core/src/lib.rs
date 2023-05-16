@@ -1,6 +1,9 @@
 pub mod system;
+pub mod util;
 pub use bfj_common::entity;
 use serde::{Deserialize, Serialize};
+
+pub use util::crypto;
 
 #[derive(Debug, Deserialize)]
 pub struct PageParams {

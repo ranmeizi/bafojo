@@ -7,6 +7,7 @@ pub mod res;
 pub mod error;
 pub mod entity;
 pub mod enums;
+pub mod dto;
 
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 

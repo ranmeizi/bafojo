@@ -46,6 +46,7 @@ enum SysUser {
     Id,
     Uname,
     Psw,
+    Salt,
     Nickname,
     Sex,
     Mobile,
@@ -53,7 +54,7 @@ enum SysUser {
     Enabled,
     Col1,
     Col2,
-    Col3,
+    Col3
 }
 // 创建 用户 表
 async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
@@ -75,9 +76,15 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         )
         .col(
             ColumnDef::new(SysUser::Psw)
-                .char_len(20)
+                .char_len(32)
                 .not_null()
                 .extra("COMMENT '加密后的密码'".to_owned()),
+        )
+        .col(
+            ColumnDef::new(SysUser::Salt)
+                .char_len(8)
+                .not_null()
+                .extra("COMMENT '盐'".to_owned()),
         )
         .col(
             ColumnDef::new(SysUser::Nickname)
@@ -102,6 +109,7 @@ async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .col(
             ColumnDef::new(SysUser::Enabled)
                 .boolean()
+                .not_null()
                 .default(true)
                 .extra("COMMENT '启用状态'".to_owned()),
         )

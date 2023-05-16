@@ -14,12 +14,9 @@ pub fn system_routes() -> RouterType {
 
 pub fn resource_api() -> RouterType {
     Router::new()
-        .route("/", get(resource::query).post(resource::create))
-        .route(
-            "/:id",
-            get(resource::find_by_id)
-                .post(resource::update)
-                .patch(resource::update)
-                .delete(resource::delete_by_id),
-        )
+        .route("/list", get(resource::query))
+        .route("/findById", get(resource::find_by_id))
+        .route("/create", post(resource::create))
+        .route("/update", post(resource::update))
+        .route("/deleteById", post(resource::delete_by_id))
 }

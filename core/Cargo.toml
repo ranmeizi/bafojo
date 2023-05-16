@@ -11,3 +11,5 @@ bfj-common = { path = "../common" }
 chrono = { workspace = true }
 sea-orm = { workspace = true }
 serde = { workspace = true }
+rust-crypto = { workspace = true }
+rand = { workspace = true }

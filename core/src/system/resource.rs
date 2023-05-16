@@ -1,7 +1,7 @@
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
-use bfj_common::error::CustErr;
+use bfj_common::{enums::system as EnumSys, error::CustErr};
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
@@ -106,7 +106,7 @@ impl Mutation {
         params: AddResourceParams,
     ) -> Result<sys_resource::Model> {
         // 判断 type 是否安全
-        let r#type = match TryInto::<sys_resource::ResourceType>::try_into(params.r#type) {
+        let r#type = match TryInto::<EnumSys::EnumResourceType>::try_into(params.r#type) {
             Ok(t) => t,
             Err(e) => {
                 // 响应错误
@@ -122,14 +122,14 @@ impl Mutation {
 
         let resource = sys_resource::ActiveModel {
             name: Set(params.name.to_owned()),
-            r#type: Set(r#type),
+            r#type: Set(r#type.into()),
             created_at: Set(Some(Utc::now())),
             code: Set(params.code),
             parent: Set(params.parent),
             title: Set(params.title),
             url: Set(params.url),
             desc: Set(params.desc),
-            order: Set(Some(params.order.unwrap_or_default())),
+            order: Set(Some(params.order.unwrap_or(0))),
             ..Default::default()
         }
         .insert(db)
@@ -143,7 +143,7 @@ impl Mutation {
         params: UpdateResourceParams,
     ) -> Result<sys_resource::Model> {
         let resource: Option<sys_resource::Model> =
-            sys_resource::Entity::find_by_id(params.id).one(db).await?;
+            sys_resource::Entity::find_by_id(params.code).one(db).await?;
 
         // Into ActiveModel
         let mut resource: sys_resource::ActiveModel = resource.unwrap().into();
@@ -168,6 +168,9 @@ impl Mutation {
             resource.order = Set(Some(order));
         }
 
+        // 更新修改时间
+        resource.updated_at = Set(Some(Utc::now()));
+
         let resource: sys_resource::Model = resource.update(db).await?;
 
         Ok(resource)
@@ -177,7 +180,9 @@ impl Mutation {
         // 判断 是否有 parent 为 id 的数据，存在则不允许删除
         if Query::check_has_child(db, &id).await? {
             // 响应错误
-            return Err(CustErr::ReqDeleteFail(format!("存在 parent = {id} 的数据，请删除后重试")).into());
+            return Err(
+                CustErr::ReqDeleteFail(format!("存在 parent = {id} 的数据，请删除后重试")).into(),
+            );
         }
 
         sys_resource::Entity::delete_by_id(&id).exec(db).await?;
@@ -206,7 +211,7 @@ pub struct AddResourceParams {
  */
 #[derive(Debug, Deserialize)]
 pub struct UpdateResourceParams {
-    id: String,
+    code: String,
     name: Option<String>,
     title: Option<String>,
     url: Option<String>,

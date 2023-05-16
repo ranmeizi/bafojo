@@ -1,6 +1,10 @@
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
-use sea_orm::DatabaseConnection;
+use bfj_common::error::CustErr;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, Set,
+};
 use serde::Deserialize;
 
 pub struct Query {}
@@ -56,5 +60,5 @@ impl Mutation {
     /**
      * 删除
      */
-    pub async fn delete_role_by_id(db: &DatabaseConnection, id: i32){}
+    pub async fn delete_role_by_id(db: &DatabaseConnection, id: i32) {}
 }
