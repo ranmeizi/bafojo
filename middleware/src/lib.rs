@@ -1,3 +1,5 @@
+use std::println;
+
 use axum::{
     body::{Bytes, HttpBody},
     http::{ Request},
@@ -8,6 +10,7 @@ use chrono::prelude::Local;
 use serde_json::{self, Value};
 
 pub async fn json_timer<B>(req: Request<B>, next: Next<B>) -> impl IntoResponse {
+    println!("11");
     // 获取时间
     let now = Local::now().timestamp_millis();
 

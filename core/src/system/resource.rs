@@ -64,7 +64,7 @@ impl Query {
      */
     pub async fn find_resource_by_id(
         db: &DatabaseConnection,
-        id: String,
+        id: i32,
     ) -> Result<Option<sys_resource::Model>> {
         let resource = sys_resource::Entity::find_by_id(id).one(db).await?;
 
@@ -143,7 +143,7 @@ impl Mutation {
         params: UpdateResourceParams,
     ) -> Result<sys_resource::Model> {
         let resource: Option<sys_resource::Model> =
-            sys_resource::Entity::find_by_id(params.code).one(db).await?;
+            sys_resource::Entity::find_by_id(params.id).one(db).await?;
 
         // Into ActiveModel
         let mut resource: sys_resource::ActiveModel = resource.unwrap().into();
@@ -176,16 +176,27 @@ impl Mutation {
         Ok(resource)
     }
 
-    pub async fn delete_resource_by_id(db: &DatabaseConnection, id: String) -> Result<()> {
-        // 判断 是否有 parent 为 id 的数据，存在则不允许删除
-        if Query::check_has_child(db, &id).await? {
-            // 响应错误
+    pub async fn delete_resource_by_id(db: &DatabaseConnection, id: i32) -> Result<()> {
+        // 判断 id 是否存在并查询 code 值
+        let resource = if let Some(x) = Query::find_resource_by_id(db, id).await? {
+            x
+        } else {
             return Err(
-                CustErr::ReqDeleteFail(format!("存在 parent = {id} 的数据，请删除后重试")).into(),
+                CustErr::ReqDeleteFail(format!("不存在 id = {id} 的数据，请删除后重试")).into(),
             );
+        };
+
+        // 判断 是否有 parent 为 id 的数据，存在则不允许删除
+        if Query::check_has_child(db, &resource.code).await? {
+            // 响应错误
+            return Err(CustErr::ReqDeleteFail(format!(
+                "存在 parent = {} 的数据，请删除后重试",
+                resource.code
+            ))
+            .into());
         }
 
-        sys_resource::Entity::delete_by_id(&id).exec(db).await?;
+        sys_resource::Entity::delete_by_id(id).exec(db).await?;
 
         Ok(())
     }
@@ -211,7 +222,7 @@ pub struct AddResourceParams {
  */
 #[derive(Debug, Deserialize)]
 pub struct UpdateResourceParams {
-    code: String,
+    id: i32,
     name: Option<String>,
     title: Option<String>,
     url: Option<String>,

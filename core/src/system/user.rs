@@ -5,8 +5,8 @@ use anyhow::{anyhow, Result};
 use bfj_common::{dto::system::UserDto, error::CustErr};
 use chrono::prelude::Utc;
 use sea_orm::{
-    prelude::DateTimeUtc, ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait,
-    PaginatorTrait, QueryFilter, QueryOrder, Set,
+    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, Set,
 };
 use serde::Deserialize;
 
@@ -20,12 +20,29 @@ impl Query {
     pub async fn get_user_list(
         db: &DatabaseConnection,
         page_params: PageParams,
+        params: QueryUserListParams,
     ) -> Result<PageData<UserDto>> {
         let page_num = page_params.page_num.unwrap_or(1);
         let page_size = page_params.page_size.unwrap_or(20);
 
         // 组装查询条件
         let mut s = sys_user::Entity::find();
+
+        if let Some(uname) = params.uname {
+            s = s.filter(sys_user::Column::Uname.like(&format!("%{uname}%")));
+        }
+
+        if let Some(nickname) = params.nickname {
+            s = s.filter(sys_user::Column::Nickname.like(&format!("%{nickname}%")));
+        }
+
+        if let Some(email) = params.email {
+            s = s.filter(sys_user::Column::Email.like(&format!("%{email}%")));
+        }
+
+        if let Some(mobile) = params.mobile {
+            s = s.filter(sys_user::Column::Mobile.like(&format!("%{mobile}%")));
+        }
 
         // 分页
         let total = s.clone().count(db).await?;
@@ -137,6 +154,9 @@ impl Mutation {
         Ok(())
     }
 
+    /**
+     * 禁用
+     */
     pub async fn user_enabled(
         db: &DatabaseConnection,
         params: EnabledParams,
@@ -187,4 +207,15 @@ pub struct UpdateResourceParams {
 pub struct EnabledParams {
     id: i32,
     enabled: i8,
+}
+
+/**
+ * 资源筛选参数
+ */
+#[derive(Debug, Deserialize)]
+pub struct QueryUserListParams {
+    uname: Option<String>,
+    nickname: Option<String>,
+    mobile: Option<String>,
+    email: Option<String>,
 }

@@ -54,7 +54,7 @@ enum SysUser {
     Enabled,
     Col1,
     Col2,
-    Col3
+    Col3,
 }
 // 创建 用户 表
 async fn create_user(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
@@ -155,10 +155,16 @@ async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .if_not_exists()
         .table(SysResource::Table)
         .col(
+            ColumnDef::new(SysRole::Id)
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(
             ColumnDef::new(SysResource::Code)
                 .string_len(30)
                 .not_null()
-                .primary_key()
                 .extra("COMMENT '权限码'".to_owned()),
         )
         .col(
@@ -242,7 +248,6 @@ async fn create_role(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .col(
             ColumnDef::new(SysRole::Desc)
                 .string_len(100)
-                .not_null()
                 .extra("COMMENT '角色描述'".to_owned()),
         )
         .to_owned();

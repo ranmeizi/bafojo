@@ -15,7 +15,7 @@ use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct ByIdParams {
-    code: String,
+    id: i32,
 }
 
 // 获取分页列表
@@ -37,7 +37,7 @@ pub async fn find_by_id(
     state: State<AppState>,
     WithRejection(id_params, _): WithRejection<ReqQuery<ByIdParams>, Res>,
 ) -> impl IntoResponse {
-    let res = Query::find_resource_by_id(&state.db, id_params.0.code).await;
+    let res = Query::find_resource_by_id(&state.db, id_params.0.id).await;
 
     match res {
         Ok(data) => Res::success(data),
@@ -76,7 +76,7 @@ pub async fn delete_by_id(
     state: State<AppState>,
     WithRejection(id_params, _): WithRejection<Json<ByIdParams>, Res>,
 ) -> impl IntoResponse {
-    let res = Mutation::delete_resource_by_id(&state.db, id_params.0.code).await;
+    let res = Mutation::delete_resource_by_id(&state.db, id_params.0.id).await;
 
     match res {
         Ok(data) => Res::success(data),
