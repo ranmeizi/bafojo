@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "api", "core", "common", "migration","middleware"]
+members = [".","api", "core", "common", "migration","middleware"]
 
 [package]
 name = "bafojo"
