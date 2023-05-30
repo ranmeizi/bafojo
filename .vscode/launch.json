@@ -8,7 +8,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/target/debug/rvt_backend",
+            "program": "${workspaceFolder}/target/debug/bafojo",
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "${defaultBuildTask}"
