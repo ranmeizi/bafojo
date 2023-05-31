@@ -13,3 +13,6 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+jsonwebtoken = { workspace = true }
+chrono = { workspace = true }
+toml = { workspace = true }
