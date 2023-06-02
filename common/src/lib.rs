@@ -10,14 +10,17 @@ use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::env;
 use std::time::Duration;
 use tokio::sync::OnceCell;
-
+mod config;
+pub use config::CFG;
 pub mod res;
 pub mod error;
 pub mod entity;
 pub mod enums;
 pub mod dto;
 pub mod utils;
-pub mod config;
+
+
+
 
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 

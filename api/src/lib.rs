@@ -1,16 +1,16 @@
 use axum::{middleware, Router};
-use bfj_common::{db_conn, res, DB};
+use bfj_common::{db_conn, CFG, DB};
 use bfj_middleware::json_timer;
 use route::api;
 use sea_orm::DatabaseConnection;
-use std::env;
 mod route;
 mod system;
+mod auth;
 
 #[tokio::main]
 pub async fn start() -> anyhow::Result<()> {
     let db = DB.get_or_init(db_conn).await.to_owned();
-    let port = env::var("PORT").expect("PORT is not set in .env file");
+    let port = CFG.app.port.clone();
     let state = AppState { db };
 
     // build our application with a single route

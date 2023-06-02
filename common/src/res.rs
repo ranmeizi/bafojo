@@ -44,26 +44,7 @@ impl<T: Serialize> Res<T> {
             msg: Some(String::from(msg)),
         }
     }
-    /**
-     * 普遍错误body
-     */
-    pub fn code_error(c: StatusCode) -> Self {
-        Self {
-            code: Some(c.as_u16()),
-            data: None,
-            msg: Some(String::from(c.canonical_reason().unwrap())),
-        }
-    }
-    /**
-     * 普遍错误body
-     */
-    pub fn code_error_msg(c: StatusCode, msg: &str) -> Self {
-        Self {
-            code: Some(c.as_u16()),
-            data: None,
-            msg: Some(String::from(msg)),
-        }
-    }
+    
     /**
      * 自定义错误body
      */

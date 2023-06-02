@@ -1,4 +1,5 @@
 pub mod system;
+pub mod auth;
 pub mod util;
 pub use bfj_common::entity;
 use serde::{Deserialize, Serialize};

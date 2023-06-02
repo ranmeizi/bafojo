@@ -4,7 +4,8 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 // DTO ↓
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserDto {
     pub id: i32,
     pub uname: String,

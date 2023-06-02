@@ -1,8 +1,11 @@
 use crate::crypto::{gen_salt, into_md5_psw};
 use crate::entity::sys_user;
 use crate::{PageData, PageParams};
-use anyhow::{anyhow, Result};
-use bfj_common::{dto::system::UserDto, error::CustErr};
+use anyhow::{anyhow, Ok, Result};
+use bfj_common::{
+    dto::system::UserDto,
+    error::{AuthErr, CustErr},
+};
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
@@ -69,15 +72,18 @@ impl Query {
     /**
      * 按id查询
      */
-    pub async fn find_user_by_id(
-        db: &DatabaseConnection,
-        id: i32,
-    ) -> Result<Option<sys_user::Model>> {
+    pub async fn find_user_by_id(db: &DatabaseConnection, id: i32) -> Result<Option<UserDto>> {
         let user = sys_user::Entity::find_by_id(id).one(db).await?;
 
-        Ok(user)
+        match user {
+            Some(model) => Ok(Some(model.into())),
+            None => Ok(None),
+        }
     }
 
+    /**
+     *
+     */
     pub async fn check_unique_uname(db: &DatabaseConnection, uname: &str) -> Result<bool> {
         let count = sys_user::Entity::find()
             .filter(sys_user::Column::Uname.eq(uname))
@@ -91,10 +97,7 @@ impl Mutation {
     /**
      * 管理员创建user 默认密码 111111
      */
-    pub async fn create_user(
-        db: &DatabaseConnection,
-        params: AddUserParams,
-    ) -> Result<sys_user::Model> {
+    pub async fn create_user(db: &DatabaseConnection, params: AddUserParams) -> Result<UserDto> {
         // 判断 uname 是否重复
         if Query::check_unique_uname(db, &params.uname).await? {
             // 响应错误
@@ -118,16 +121,13 @@ impl Mutation {
         .insert(db)
         .await?;
 
-        Ok(user)
+        Ok(user.into())
     }
 
     /**
      * 更新
      */
-    pub async fn update_user(
-        db: &DatabaseConnection,
-        params: UpdateResourceParams,
-    ) -> Result<sys_user::Model> {
+    pub async fn update_user(db: &DatabaseConnection, params: UpdateUserParams) -> Result<UserDto> {
         let user: Option<sys_user::Model> = sys_user::Entity::find_by_id(params.id).one(db).await?;
 
         // Into ActiveModel
@@ -143,7 +143,7 @@ impl Mutation {
 
         let user: sys_user::Model = user.update(db).await?;
 
-        Ok(user)
+        Ok(user.into())
     }
 
     /**
@@ -157,10 +157,7 @@ impl Mutation {
     /**
      * 禁用
      */
-    pub async fn user_enabled(
-        db: &DatabaseConnection,
-        params: EnabledParams,
-    ) -> Result<sys_user::Model> {
+    pub async fn user_enabled(db: &DatabaseConnection, params: EnabledParams) -> Result<UserDto> {
         let user: Option<sys_user::Model> = sys_user::Entity::find_by_id(params.id).one(db).await?;
 
         // Into ActiveModel
@@ -172,7 +169,7 @@ impl Mutation {
 
         let user: sys_user::Model = user.update(db).await?;
 
-        Ok(user)
+        Ok(user.into())
     }
 }
 
@@ -192,7 +189,7 @@ pub struct AddUserParams {
  * 更新用户参数
  */
 #[derive(Debug, Deserialize)]
-pub struct UpdateResourceParams {
+pub struct UpdateUserParams {
     id: i32,
     nickname: Option<String>,
     sex: Option<String>,

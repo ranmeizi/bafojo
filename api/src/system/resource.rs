@@ -28,7 +28,7 @@ pub async fn query(
 
     match res {
         Ok(data) => Res::success(data),
-        Err(e) => Res::code_error_msg(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()),
+        Err(e) => Res::error(e),
     }
 }
 
@@ -41,7 +41,7 @@ pub async fn find_by_id(
 
     match res {
         Ok(data) => Res::success(data),
-        Err(e) => Res::code_error_msg(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()),
+        Err(e) => Res::error(e),
     }
 }
 
