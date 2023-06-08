@@ -12,3 +12,4 @@ chrono = { workspace = true }
 hyper = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+bfj-common = { path = '../common'}

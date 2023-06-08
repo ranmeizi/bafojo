@@ -10,6 +10,9 @@ pub enum CustErr {
     #[error("something wrong with Request parameter : {0}")]
     ReqParamError(String),
 
+    #[error("something wrong with Request method : {0}")]
+    ReqMethodErr(String),
+
     #[error("something wrong when Delete : {0}")]
     ReqDeleteFail(String),
 

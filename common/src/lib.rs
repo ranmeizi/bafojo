@@ -19,9 +19,6 @@ pub mod enums;
 pub mod dto;
 pub mod utils;
 
-
-
-
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 
 pub async fn db_conn() -> DatabaseConnection {

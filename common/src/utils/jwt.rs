@@ -6,9 +6,12 @@
  * @FilePath: /bafojo/common/src/utils/jwt.rs
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-use crate::config::CFG;
+use crate::{config::CFG, error::AuthErr};
+use anyhow::Result;
 use chrono::{prelude::Utc, Duration};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{
+    decode, encode, errors::Error, Algorithm, DecodingKey, EncodingKey, Header, Validation,
+};
 use serde::{Deserialize, Serialize};
 
 /// Our claims struct, it needs to derive `Serialize` and/or `Deserialize`
@@ -21,8 +24,8 @@ struct Claims {
 /**
  * 签发 token
  */
-pub fn authorize(uname: &str) -> Result<(String, i64), ()> {
-    let header = Header::default();
+pub fn authorize(uname: &str) -> Result<(String, i64)> {
+    let header = Header::new(Algorithm::RS256);
 
     // 计算过期时间
     let exp = get_exp();
@@ -32,24 +35,45 @@ pub fn authorize(uname: &str) -> Result<(String, i64), ()> {
         exp: exp,
     };
 
-    // secret
-    let secret = CFG.jwt.secret.clone();
+    let sign = get_sign(&header, &claims)?;
 
-    let sign = &EncodingKey::from_secret(secret.as_ref());
+    Ok((sign, exp))
+}
 
-    match encode(&header, &claims, sign) {
-        Ok(token) => Ok((token, exp)),
-        Err(e) => Err(()),
-    }
+fn get_sign(header: &Header, claims: &Claims) -> Result<String> {
+    let key = EncodingKey::from_rsa_pem(include_bytes!("cert/private.pem"))?;
+
+    let token = encode(&header, &claims, &key)?;
+
+    Ok(token)
 }
 
 /**
  * 校验 token
  */
-pub fn check_access_token(token: &str) -> Result<(), String> {
+pub fn check_access_token(token: &str) -> Result<()> {
+    // 获取当前时间
+    let now = Utc::now().timestamp();
+
     // 校验签名
+    let res = DecodingKey::from_rsa_pem(include_bytes!("cert/private.pem"));
+
+    if res.is_err() {
+        // 无效token
+        return Err(AuthErr::InvalidToken.into());
+    }
+
+    let key = res.unwrap();
+
+    let token = decode::<Claims>(&token, &key, &Validation::default())?;
 
     // 校验有效期
+    let exp = token.claims.exp;
+
+    if now > exp {
+        // 超过有效期
+        return Err(AuthErr::ExpiredToken.into());
+    }
 
     Ok(())
 }

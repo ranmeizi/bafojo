@@ -9,6 +9,7 @@ use bfj_core::{
     system::resource::{self, Mutation, Query},
     PageParams,
 };
+use hyper::Request;
 use serde::Deserialize;
 
 use crate::AppState;

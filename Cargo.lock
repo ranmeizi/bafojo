@@ -390,6 +390,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "bfj-common",
  "chrono",
  "hyper",
  "serde",

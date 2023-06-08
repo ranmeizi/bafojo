@@ -17,9 +17,9 @@ use anyhow::Error;
  */
 #[derive(Debug, Serialize)]
 pub struct Res<T: Serialize = ()> {
-    code: Option<u16>,
-    data: Option<T>,
-    msg: Option<String>,
+    pub code: Option<u16>,
+    pub data: Option<T>,
+    pub msg: Option<String>,
 }
 
 impl<T: Serialize> Res<T> {
@@ -73,11 +73,7 @@ impl<T: Serialize> Res<T> {
  */
 impl From<JsonRejection> for Res<()> {
     fn from(value: JsonRejection) -> Self {
-        Self {
-            code: Some(value.status().as_u16()),
-            data: None,
-            msg: Some(value.body_text()),
-        }
+        Self::error(CustErr::ReqParamError(value.body_text()).into())
     }
 }
 
@@ -86,11 +82,7 @@ impl From<JsonRejection> for Res<()> {
  */
 impl From<QueryRejection> for Res<()> {
     fn from(value: QueryRejection) -> Self {
-        Self {
-            code: Some(value.status().as_u16()),
-            data: None,
-            msg: Some(value.body_text()),
-        }
+        Self::error(CustErr::ReqParamError(value.body_text()).into())
     }
 }
 

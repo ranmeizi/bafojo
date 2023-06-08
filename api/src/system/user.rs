@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Json, Path, Query as ReqQuery, State},
+    extract::{Extension, Json, Path, Query as ReqQuery, State},
     http::{header::SET_COOKIE, StatusCode},
     response::{AppendHeaders, IntoResponse},
 };
@@ -9,9 +9,11 @@ use bfj_core::{
     system::user::{self, Mutation, Query},
     PageParams,
 };
+use bfj_middleware::auth::AuthState;
 use serde::Deserialize;
+use std::sync::Arc;
 
-use crate::AppState;
+use crate::{AppState, BBa};
 
 #[derive(Deserialize)]
 pub struct ByIdParams {
@@ -21,10 +23,15 @@ pub struct ByIdParams {
 // 获取分页列表
 pub async fn query(
     state: State<AppState>,
+    userinfo: Extension<Arc<AuthState>>,
+    boboan: Extension<Arc<BBa>>,
     WithRejection(page_params, _): WithRejection<ReqQuery<PageParams>, Res>,
     WithRejection(params, _): WithRejection<ReqQuery<user::QueryUserListParams>, Res>,
 ) -> impl IntoResponse {
     let res = Query::get_user_list(&state.db, page_params.0, params.0).await;
+
+    println!("非常关键:{:?}", boboan);
+    println!("非常关键:{:?}", userinfo);
 
     match res {
         Ok(data) => Res::success(data),

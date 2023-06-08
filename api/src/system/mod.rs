@@ -1,8 +1,10 @@
 use crate::RouterType;
 use axum::{
+    middleware,
     routing::{delete, get, patch, post},
     Router,
 };
+use bfj_middleware::auth::jwt_layer;
 
 mod resource;
 mod role;
@@ -10,8 +12,11 @@ mod user;
 
 pub fn system_routes() -> RouterType {
     Router::new()
-        .nest("/resource", resource_api())
-        .nest("/user", user_api())
+        .nest(
+            "/resource",
+            resource_api().layer(middleware::from_fn(jwt_layer)),
+        )
+        .nest("/user", user_api().layer(middleware::from_fn(jwt_layer)))
 }
 
 pub fn resource_api() -> RouterType {
