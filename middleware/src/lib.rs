@@ -11,7 +11,6 @@ use serde_json::{self, Value};
 
 pub mod auth;
 pub mod status_json;
-pub mod id_cache;
 
 pub async fn json_timer<B>(req: Request<B>, next: Next<B>) -> impl IntoResponse {
     // 获取时间
