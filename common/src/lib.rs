@@ -18,8 +18,9 @@ pub mod entity;
 pub mod enums;
 pub mod dto;
 pub mod utils;
+pub mod cache;
 
-pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
+// pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 
 pub async fn db_conn() -> DatabaseConnection {
     let mut opt = ConnectOptions::new(

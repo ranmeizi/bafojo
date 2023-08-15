@@ -1,1 +1,8 @@
-[mysql]
+[app]
+port = '3000'
+dbstr = 'mysql://root:123456@127.0.0.1:3306/fw_admin'
+redis_str = 'redis://:127.0.0.1@:123456'
+
+[jwt]
+exp_min = 3600
+secret = 'boboan_tingniubide'

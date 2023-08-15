@@ -8,6 +8,8 @@ use sea_orm::{
 };
 use serde::Deserialize;
 
+struct Cache {}
+
 pub struct Query {}
 pub struct Mutation {}
 
