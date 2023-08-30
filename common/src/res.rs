@@ -1,4 +1,4 @@
-use super::error::{CustErr, CustErrPairs};
+use super::error::{CustErr,AuthErr, CustErrPairs};
 use axum::{
     body::{self, Full},
     extract::rejection::{JsonRejection, QueryRejection},
@@ -54,6 +54,12 @@ impl<T: Serialize> Res<T> {
             match e.downcast_ref::<CustErr>() {
                 // Some(CustErr::ReqParamError(_)) => 400,
                 // Some(CustErr::ReqDeleteFail(_)) => 400,
+                _ => 400,
+            }
+        } else if e.downcast_ref::<AuthErr>().is_some() {
+            match e.downcast_ref::<AuthErr>() {
+                Some(AuthErr::ExpiredToken) => 403,
+                Some(AuthErr::InvalidToken) => 403,
                 _ => 400,
             }
         } else {

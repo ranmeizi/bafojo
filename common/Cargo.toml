@@ -10,12 +10,13 @@ anyhow = {workspace = true}
 axum = {workspace = true}
 chrono = {workspace = true}
 jsonwebtoken = {workspace = true}
-mobc = {workspace = true}
-mobc-redis = {workspace = true}
 once_cell = {workspace = true}
+r2d2 = {workspace = true}
+r2d2_redis = {workspace = true}
 sea-orm = {workspace = true}
 serde = {workspace = true}
 serde_json = {workspace = true}
 thiserror = {workspace = true}
 tokio = {workspace = true}
 toml = {workspace = true}
+redis={workspace=true}

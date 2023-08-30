@@ -9,8 +9,8 @@
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::env;
 use std::time::Duration;
-use tokio::sync::OnceCell;
 mod config;
+use tokio::sync::OnceCell;
 pub use config::CFG;
 pub mod res;
 pub mod error;
@@ -20,9 +20,14 @@ pub mod dto;
 pub mod utils;
 pub mod cache;
 
-// pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
+static DB:OnceCell<DatabaseConnection> = OnceCell::const_new();
 
-pub async fn db_conn() -> DatabaseConnection {
+#[derive(Clone,Debug)]
+pub struct AppState {
+    pub db:&'static DatabaseConnection,
+}
+
+async fn db_conn() -> DatabaseConnection {
     let mut opt = ConnectOptions::new(
         env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file")
     );
@@ -34,4 +39,8 @@ pub async fn db_conn() -> DatabaseConnection {
 
     let db = Database::connect(opt).await.expect("数据库连接失败");
     db
+}
+
+pub async fn get_db()->&'static DatabaseConnection{
+    DB.get_or_init(db_conn).await
 }

@@ -16,7 +16,9 @@ pub struct Config {
 
 #[derive(Deserialize)]
 pub struct AppCfg {
-    pub port: String
+    pub port: String,
+    pub dbstr: String,
+    pub redis_str: String,
 }
 
 #[derive(Deserialize)]

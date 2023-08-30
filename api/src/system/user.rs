@@ -13,7 +13,7 @@ use bfj_middleware::auth::AuthState;
 use serde::Deserialize;
 use std::sync::Arc;
 
-use crate::{AppState, BBa};
+use crate::{AppState};
 
 #[derive(Deserialize)]
 pub struct ByIdParams {
@@ -23,15 +23,13 @@ pub struct ByIdParams {
 // 获取分页列表
 pub async fn query(
     state: State<AppState>,
-    userinfo: Extension<Arc<AuthState>>,
-    boboan: Extension<Arc<BBa>>,
+    // userinfo: Extension<Arc<AuthState>>,
     WithRejection(ReqQuery(page_params), _): WithRejection<ReqQuery<PageParams>, Res>,
     WithRejection(ReqQuery(params), _): WithRejection<ReqQuery<user::QueryUserListParams>, Res>,
 ) -> impl IntoResponse {
     let res = Query::get_user_list(&state.db, page_params, params).await;
 
-    println!("非常关键:{:?}", boboan);
-    println!("非常关键:{:?}", userinfo);
+    // println!("非常关键:{:?}", userinfo);
 
     match res {
         Ok(data) => Res::success(data),

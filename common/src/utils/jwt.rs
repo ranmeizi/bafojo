@@ -16,15 +16,16 @@ use serde::{Deserialize, Serialize};
 
 /// Our claims struct, it needs to derive `Serialize` and/or `Deserialize`
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    uname: String,
-    exp: i64,
+pub struct Claims {
+    pub uname: String,
+    pub uid:i32,
+    pub exp: i64,
 }
 
 /**
  * 签发 token
  */
-pub fn authorize(uname: &str) -> Result<(String, i64)> {
+pub fn authorize(uname: &str,uid:i32) -> Result<(String, i64)> {
     let header = Header::new(Algorithm::RS256);
 
     // 计算过期时间
@@ -32,6 +33,7 @@ pub fn authorize(uname: &str) -> Result<(String, i64)> {
 
     let claims = Claims {
         uname: uname.into(),
+        uid,
         exp: exp,
     };
 
@@ -51,31 +53,34 @@ fn get_sign(header: &Header, claims: &Claims) -> Result<String> {
 /**
  * 校验 token
  */
-pub fn check_access_token(token: &str) -> Result<()> {
+pub fn check_access_token(token: &str) -> Result<Claims> {
     // 获取当前时间
     let now = Utc::now().timestamp();
 
     // 校验签名
-    let res = DecodingKey::from_rsa_pem(include_bytes!("cert/private.pem"));
+    let key = DecodingKey::from_rsa_pem(include_bytes!("cert/public.pem"))?;
+
+    println!("res ok");
+
+    let res = decode::<Claims>(&token, &key, &Validation::new(Algorithm::RS256));
 
     if res.is_err() {
         // 无效token
         return Err(AuthErr::InvalidToken.into());
     }
 
-    let key = res.unwrap();
+   let claims = res.unwrap().claims;
 
-    let token = decode::<Claims>(&token, &key, &Validation::default())?;
 
     // 校验有效期
-    let exp = token.claims.exp;
+    let exp = claims.exp;
 
     if now > exp {
         // 超过有效期
         return Err(AuthErr::ExpiredToken.into());
     }
 
-    Ok(())
+    Ok(claims)
 }
 
 fn get_exp() -> i64 {

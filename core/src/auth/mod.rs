@@ -21,15 +21,15 @@ impl Query {
     pub async fn get_psw_by_uname(
         db: &DatabaseConnection,
         uname: &str,
-    ) -> Result<(String, String)> {
+    ) -> Result<(String, String, i32)> {
         let user = sys_user::Entity::find()
             .filter(sys_user::Column::Uname.eq(uname))
             .one(db)
             .await?;
 
         match user {
-            Some(m) => Ok((m.psw, m.salt)),
-            _ =>Err(anyhow!("")),
+            Some(m) => Ok((m.psw, m.salt, m.id)),
+            _ => Err(anyhow!("")),
         }
     }
 }
