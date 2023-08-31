@@ -22,15 +22,15 @@ pub enum CustErr {
 
 #[derive(Error, Debug)]
 pub enum AuthErr {
-    #[error("auth error : 用户名或密码错误")]
+    #[error("用户名或密码错误")]
     NoUser,
 
-    #[error("auth error : 用户名或密码错误")]
+    #[error("用户名或密码错误")]
     PasswordError,
 
-    #[error("auth error : access_token 过期")]
+    #[error("access_token 过期")]
     ExpiredToken,
 
-    #[error("auth error : 无效的 access_token")]
+    #[error("无效的 access_token")]
     InvalidToken
 }

@@ -19,6 +19,7 @@ pub mod enums;
 pub mod dto;
 pub mod utils;
 pub mod cache;
+pub mod constants;
 
 static DB:OnceCell<DatabaseConnection> = OnceCell::const_new();
 

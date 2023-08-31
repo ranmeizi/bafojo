@@ -11,7 +11,7 @@ pub async fn get(key: &str) -> Result<UserDto> {
     let k = format!("{}{}", PREFIX, key);
     let v: String = conn.get(k)?;
     let user: UserDto = serde_json::from_str(&v)?;
-
+    println!("Cache userinfo ，uid:{} 命中缓存，user:{:?}",key,user);
     Ok(user)
 }
 

@@ -190,7 +190,7 @@ pub struct AddUserParams {
  */
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserParams {
-    id: i32,
+    pub id: i32,
     nickname: Option<String>,
     sex: Option<String>,
     mobile: Option<String>,

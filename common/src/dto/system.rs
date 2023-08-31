@@ -1,5 +1,7 @@
+use crate::constants::DATETIME_FORMAT_STRING;
 use crate::entity;
 use crate::enums;
+use chrono::{DateTime, Utc,FixedOffset};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -14,10 +16,21 @@ pub struct UserDto {
     pub mobile: Option<String>,
     pub email: Option<String>,
     pub enabled: bool,
-    pub created_at: Option<DateTimeUtc>,
+    pub created_at: Option<String>,
     pub created_by: Option<i32>,
-    pub updated_at: Option<DateTimeUtc>,
+    pub updated_at: Option<String>,
     pub updated_by: Option<i32>,
+}
+
+fn format_datetime(option_datetime: Option<DateTime<Utc>>)->Option<String> {
+    if option_datetime.is_none() {
+        None
+    } else {
+        let utc_datetime: DateTime<Utc> = option_datetime.unwrap();
+        let offset = FixedOffset::east(3600 * 8); // UTC+08:00
+        let local_time = utc_datetime.with_timezone(&offset);
+        Some(local_time.format(DATETIME_FORMAT_STRING).to_string())
+    }
 }
 
 impl From<entity::sys_user::Model> for UserDto {
@@ -30,9 +43,9 @@ impl From<entity::sys_user::Model> for UserDto {
             mobile: value.mobile,
             email: value.email,
             enabled: enums::common::EnumEnabled::from(value.enabled).into(),
-            created_at: value.created_at,
+            created_at: format_datetime(value.created_at),
             created_by: value.created_by,
-            updated_at: value.updated_at,
+            updated_at: format_datetime(value.updated_at),
             updated_by: value.updated_by,
         }
     }

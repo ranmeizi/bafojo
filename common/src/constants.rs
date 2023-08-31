@@ -1,0 +1,1 @@
+pub static DATETIME_FORMAT_STRING: &'static str = "%Y-%m-%d %H:%M:%S";

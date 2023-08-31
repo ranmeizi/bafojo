@@ -15,6 +15,8 @@ pub async fn start() -> anyhow::Result<()> {
 
     let cors = CorsLayer::new()
     .allow_origin(Any) // 允许的来源
+    .allow_private_network(true)
+    .allow_headers(Any)
     .allow_methods(vec![Method::GET, Method::POST]); // 允许的 HTTP 方法
 
     // build our application with a single route

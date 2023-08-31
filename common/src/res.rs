@@ -1,4 +1,4 @@
-use super::error::{CustErr,AuthErr, CustErrPairs};
+use super::error::{AuthErr, CustErr, CustErrPairs};
 use axum::{
     body::{self, Full},
     extract::rejection::{JsonRejection, QueryRejection},
@@ -44,7 +44,7 @@ impl<T: Serialize> Res<T> {
             msg: Some(String::from(msg)),
         }
     }
-    
+
     /**
      * 自定义错误body
      */
@@ -58,8 +58,8 @@ impl<T: Serialize> Res<T> {
             }
         } else if e.downcast_ref::<AuthErr>().is_some() {
             match e.downcast_ref::<AuthErr>() {
-                Some(AuthErr::ExpiredToken) => 403,
-                Some(AuthErr::InvalidToken) => 403,
+                Some(AuthErr::ExpiredToken) => 401,
+                Some(AuthErr::InvalidToken) => 401,
                 _ => 400,
             }
         } else {
@@ -95,6 +95,11 @@ impl From<QueryRejection> for Res<()> {
 impl<T: Serialize> IntoResponse for Res<T> {
     fn into_response(self) -> axum::response::Response {
         let payload = json!(self);
-        (StatusCode::OK, Json(payload)).into_response()
+
+        if self.code.unwrap() == 401 {
+            (StatusCode::UNAUTHORIZED, Json(payload)).into_response()
+        } else {
+            (StatusCode::OK, Json(payload)).into_response()
+        }
     }
 }

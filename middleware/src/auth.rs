@@ -80,6 +80,7 @@ fn get_access_token<B>(req: &Request<B>) -> String {
  */
 async fn get_user_info(db: &DatabaseConnection, uid: i32) -> Option<UserDto> {
     let uidstr = uid.to_string();
+    
 
     if let Ok(uinfo) = user_info::get(&uidstr).await {
         // 使用缓存
@@ -87,6 +88,11 @@ async fn get_user_info(db: &DatabaseConnection, uid: i32) -> Option<UserDto> {
     } else {
         // 使用service
         if let Ok(uinfo) = user::Query::find_user_by_id(db, uid).await {
+            // 存一下
+            if uinfo.is_some(){
+                user_info::set(&uidstr, uinfo.clone().unwrap());
+            }
+           
             uinfo
         } else {
             None
