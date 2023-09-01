@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub struct AuthState {
-    userinfo: Option<UserDto>,
+    pub userinfo: Option<UserDto>,
 }
 
 /**

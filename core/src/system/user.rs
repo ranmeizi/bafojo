@@ -1,5 +1,6 @@
 use crate::crypto::{gen_salt, into_md5_psw};
 use crate::entity::sys_user;
+use crate::util::mutation;
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Ok, Result};
 use bfj_common::{
@@ -97,7 +98,11 @@ impl Mutation {
     /**
      * 管理员创建user 默认密码 111111
      */
-    pub async fn create_user(db: &DatabaseConnection, params: AddUserParams) -> Result<UserDto> {
+    pub async fn create_user(
+        db: &DatabaseConnection,
+        params: AddUserParams,
+        userinfo: &Option<UserDto>,
+    ) -> Result<UserDto> {
         // 判断 uname 是否重复
         if Query::check_unique_uname(db, &params.uname).await? {
             // 响应错误
@@ -107,6 +112,8 @@ impl Mutation {
         let salt = gen_salt();
         let psw = into_md5_psw("111111", &salt);
 
+        let create_info = mutation::get_create_info(userinfo);
+
         let user = sys_user::ActiveModel {
             uname: Set(params.uname.to_owned()),
             salt: Set(salt),
@@ -115,7 +122,8 @@ impl Mutation {
             nickname: Set(params.nickname),
             email: Set(params.email),
             mobile: Set(params.mobile),
-            created_at: Set(Some(Utc::now())),
+            created_at: Set(create_info.created_at),
+            created_by: Set(create_info.created_by),
             ..Default::default()
         }
         .insert(db)
@@ -127,7 +135,11 @@ impl Mutation {
     /**
      * 更新
      */
-    pub async fn update_user(db: &DatabaseConnection, params: UpdateUserParams) -> Result<UserDto> {
+    pub async fn update_user(
+        db: &DatabaseConnection,
+        params: UpdateUserParams,
+        userinfo: &Option<UserDto>,
+    ) -> Result<UserDto> {
         let user: Option<sys_user::Model> = sys_user::Entity::find_by_id(params.id).one(db).await?;
 
         // Into ActiveModel
@@ -138,8 +150,11 @@ impl Mutation {
         user.mobile = Set(params.mobile);
         user.email = Set(params.email);
 
+        let update_info = mutation::get_update_info(userinfo);
+
         // 更新修改时间
-        user.updated_at = Set(Some(Utc::now()));
+        user.updated_at = Set(update_info.updated_at);
+        user.updated_by = Set(update_info.updated_by);
 
         let user: sys_user::Model = user.update(db).await?;
 

@@ -23,13 +23,10 @@ pub struct ByIdParams {
 // 获取分页列表
 pub async fn query(
     state: State<AppState>,
-    userinfo: Extension<Arc<AuthState>>,
     WithRejection(ReqQuery(page_params), _): WithRejection<ReqQuery<PageParams>, Res>,
     WithRejection(ReqQuery(params), _): WithRejection<ReqQuery<user::QueryUserListParams>, Res>,
 ) -> impl IntoResponse {
     let res = Query::get_user_list(&state.db, page_params, params).await;
-
-    println!("req.userinfo:{:?}", userinfo);
 
     match res {
         Ok(data) => Res::success(data),
@@ -53,9 +50,10 @@ pub async fn find_by_id(
 // 创建资源
 pub async fn create(
     state: State<AppState>,
+    Extension(auth_state): Extension<Arc<AuthState>>,
     WithRejection(Json(params), _): WithRejection<Json<user::AddUserParams>, Res>,
 ) -> impl IntoResponse {
-    let res = Mutation::create_user(&state.db, params).await;
+    let res = Mutation::create_user(&state.db, params,&auth_state.userinfo).await;
 
     match res {
         Ok(data) => Res::success(data),
@@ -66,10 +64,11 @@ pub async fn create(
 // 更新资源
 pub async fn update(
     state: State<AppState>,
+    Extension(auth_state): Extension<Arc<AuthState>>,
     WithRejection(Json(params), _): WithRejection<Json<user::UpdateUserParams>, Res>,
 ) -> impl IntoResponse {
     let id = params.id.clone();
-    let res = Mutation::update_user(&state.db, params).await;
+    let res = Mutation::update_user(&state.db, params,&auth_state.userinfo).await;
     // 清除缓存
     user_info::del(&id.to_string());
     match res {
