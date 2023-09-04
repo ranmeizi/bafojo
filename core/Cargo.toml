@@ -13,3 +13,4 @@ sea-orm = { workspace = true }
 serde = { workspace = true }
 rust-crypto = { workspace = true }
 rand = { workspace = true }
+async-recursion = { workspace = true }

@@ -92,3 +92,19 @@ pub async fn delete_by_id(
         Err(e) => Res::error(e),
     }
 }
+
+// 使用 id 启用用户
+pub async fn enable_user(
+    state: State<AppState>,
+    WithRejection(Json(params), _): WithRejection<Json<user::EnabledParams>, Res>,
+)->impl IntoResponse {
+    let id = params.id.clone();
+    let res = Mutation::user_enabled(&state.db, params).await;
+
+     // 清除缓存
+     user_info::del(&id.to_string());
+     match res {
+         Ok(data) => Res::success(data),
+         Err(e) => Res::error(e),
+     }
+}

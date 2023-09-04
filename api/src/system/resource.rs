@@ -85,3 +85,15 @@ pub async fn delete_by_id(
         Err(e) => Res::error(e),
     }
 }
+
+pub async fn get_resource_tree(
+    state: State<AppState>,
+    WithRejection(Json(id_params), _): WithRejection<Json<ByIdParams>, Res>,
+) -> impl IntoResponse{
+    let res = Query::find_children_by_id(&state.db, id_params.id).await;
+
+    match res {
+        Ok(data) => Res::success(data),
+        Err(e) => Res::error(e),
+    }
+}

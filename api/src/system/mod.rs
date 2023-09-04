@@ -26,6 +26,7 @@ pub fn resource_api() -> RouterType {
         .route("/create", post(resource::create))
         .route("/update", post(resource::update))
         .route("/deleteById", post(resource::delete_by_id))
+        .route("/tree", post(resource::get_resource_tree))
 }
 
 pub fn user_api() -> RouterType {
@@ -35,4 +36,5 @@ pub fn user_api() -> RouterType {
         .route("/create", post(user::create))
         .route("/update", post(user::update))
         .route("/deleteById", post(user::delete_by_id))
+        .route("/enabledUser",post(user::enable_user))
 }

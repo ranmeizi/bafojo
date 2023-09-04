@@ -1,6 +1,10 @@
+use std::cell::RefCell;
+
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
+use bfj_common::dto::system::{ResourceDto, ResourceNodeDto};
+use bfj_common::res::Res;
 use bfj_common::{enums::system as EnumSys, error::CustErr};
 use chrono::prelude::Utc;
 use sea_orm::{
@@ -8,6 +12,7 @@ use sea_orm::{
     QueryOrder, Set,
 };
 use serde::Deserialize;
+use async_recursion::async_recursion;
 
 pub struct Query {}
 pub struct Mutation {}
@@ -71,6 +76,29 @@ impl Query {
         Ok(resource)
     }
 
+    #[async_recursion]
+    pub async fn find_children_by_id(
+        db: &DatabaseConnection,
+        id: i32,
+    ) -> Result<Vec<ResourceNodeDto>> {
+        let list = sys_resource::Entity::find()
+            .filter(sys_resource::Column::Parent.eq(id))
+            .all(db)
+            .await?;
+
+        let mut children_list :Vec<ResourceNodeDto> = vec![];
+    
+        for model in list {
+            let resource:ResourceDto = model.clone().into();
+            let _id = model.id.clone();
+            children_list.push(ResourceNodeDto{
+                children: RefCell::new(Self::find_children_by_id(db, _id).await?),
+                ..resource.into()
+            })
+        }
+
+        Ok(children_list)
+    }
     /**
      * 是否存在重复code?
      */

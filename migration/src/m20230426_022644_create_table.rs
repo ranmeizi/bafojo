@@ -170,7 +170,6 @@ async fn create_resource(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
         .col(
             ColumnDef::new(SysResource::Parent)
                 .string_len(30)
-                .not_null()
                 .extra("COMMENT '父级权限码'".to_owned()),
         )
         .col(

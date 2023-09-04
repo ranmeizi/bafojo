@@ -217,7 +217,7 @@ pub struct UpdateUserParams {
  */
 #[derive(Debug, Deserialize)]
 pub struct EnabledParams {
-    id: i32,
+    pub id: i32,
     enabled: i8,
 }
 
