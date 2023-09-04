@@ -3,16 +3,18 @@ use std::cell::RefCell;
 use crate::entity::sys_resource;
 use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
-use bfj_common::dto::system::{ResourceDto, ResourceNodeDto};
+use bfj_common::dto::system::{ResourceDto, ResourceNodeDto,UserDto};
 use bfj_common::res::Res;
 use bfj_common::{enums::system as EnumSys, error::CustErr};
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
     QueryOrder, Set,
+    Order
 };
 use serde::Deserialize;
 use async_recursion::async_recursion;
+use crate::util::mutation;
 
 pub struct Query {}
 pub struct Mutation {}
@@ -77,12 +79,13 @@ impl Query {
     }
 
     #[async_recursion]
-    pub async fn find_children_by_id(
+    pub async fn find_children_by_code(
         db: &DatabaseConnection,
-        id: i32,
+        code: String,
     ) -> Result<Vec<ResourceNodeDto>> {
         let list = sys_resource::Entity::find()
-            .filter(sys_resource::Column::Parent.eq(id))
+            .filter(sys_resource::Column::Parent.eq(code))
+            .order_by(sys_resource::Column::Order, Order::Asc)
             .all(db)
             .await?;
 
@@ -90,9 +93,9 @@ impl Query {
     
         for model in list {
             let resource:ResourceDto = model.clone().into();
-            let _id = model.id.clone();
+            let _code = model.code.clone();
             children_list.push(ResourceNodeDto{
-                children: RefCell::new(Self::find_children_by_id(db, _id).await?),
+                children: RefCell::new(Self::find_children_by_code(db, _code).await?),
                 ..resource.into()
             })
         }
@@ -132,6 +135,7 @@ impl Mutation {
     pub async fn create_resource(
         db: &DatabaseConnection,
         params: AddResourceParams,
+        userinfo: &Option<UserDto>,
     ) -> Result<sys_resource::Model> {
         // 判断 type 是否安全
         let r#type = match TryInto::<EnumSys::EnumResourceType>::try_into(params.r#type) {
@@ -142,6 +146,8 @@ impl Mutation {
             }
         };
 
+        let create_info = mutation::get_create_info(userinfo);
+
         // 判断 parent 是否存在，否则会产生脏数据
         if params.parent.ne("root") && !Query::check_unique_code(db, &params.parent).await? {
             // 响应错误
@@ -151,13 +157,14 @@ impl Mutation {
         let resource = sys_resource::ActiveModel {
             name: Set(params.name.to_owned()),
             r#type: Set(r#type.into()),
-            created_at: Set(Some(Utc::now())),
             code: Set(params.code),
             parent: Set(params.parent),
             title: Set(params.title),
             url: Set(params.url),
             desc: Set(params.desc),
             order: Set(Some(params.order.unwrap_or(0))),
+            created_at: Set(create_info.created_at),
+            created_by: Set(create_info.created_by),
             ..Default::default()
         }
         .insert(db)
@@ -169,6 +176,7 @@ impl Mutation {
     pub async fn update_resource(
         db: &DatabaseConnection,
         params: UpdateResourceParams,
+        userinfo: &Option<UserDto>,
     ) -> Result<sys_resource::Model> {
         let resource: Option<sys_resource::Model> =
             sys_resource::Entity::find_by_id(params.id).one(db).await?;
@@ -196,8 +204,11 @@ impl Mutation {
             resource.order = Set(Some(order));
         }
 
+        let update_info = mutation::get_update_info(userinfo);
+
         // 更新修改时间
-        resource.updated_at = Set(Some(Utc::now()));
+        resource.updated_at = Set(update_info.updated_at);
+        resource.updated_by = Set(update_info.updated_by);
 
         let resource: sys_resource::Model = resource.update(db).await?;
 

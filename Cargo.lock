@@ -1377,6 +1377,8 @@ name = "migration"
 version = "0.1.0"
 dependencies = [
  "async-std",
+ "bfj-common",
+ "bfj-core",
  "futures",
  "sea-orm-migration",
 ]

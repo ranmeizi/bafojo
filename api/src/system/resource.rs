@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Json, Path, Query as ReqQuery, State},
+    extract::{Extension,Json, Path, Query as ReqQuery, State},
     http::{header::SET_COOKIE, StatusCode},
     response::{AppendHeaders, IntoResponse},
 };
@@ -10,11 +10,19 @@ use bfj_core::{
     PageParams,
 };
 use hyper::Request;
+use bfj_middleware::auth::AuthState;
 use serde::Deserialize;
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct ByIdParams {
     id: i32,
+}
+
+
+#[derive(Deserialize)]
+pub struct ByCodeParams {
+    code: String,
 }
 
 // 获取分页列表
@@ -50,9 +58,10 @@ pub async fn find_by_id(
 // 创建资源
 pub async fn create(
     state: State<AppState>,
+    Extension(auth_state): Extension<Arc<AuthState>>,
     WithRejection(Json(params), _): WithRejection<Json<resource::AddResourceParams>, Res>,
 ) -> impl IntoResponse {
-    let res = Mutation::create_resource(&state.db, params).await;
+    let res = Mutation::create_resource(&state.db, params,&auth_state.userinfo).await;
 
     match res {
         Ok(data) => Res::success(data),
@@ -63,9 +72,10 @@ pub async fn create(
 // 更新资源
 pub async fn update(
     state: State<AppState>,
+    Extension(auth_state): Extension<Arc<AuthState>>,
     WithRejection(Json(params), _): WithRejection<Json<resource::UpdateResourceParams>, Res>,
 ) -> impl IntoResponse {
-    let res = Mutation::update_resource(&state.db, params).await;
+    let res = Mutation::update_resource(&state.db, params,&auth_state.userinfo).await;
 
     match res {
         Ok(data) => Res::success(data),
@@ -88,9 +98,9 @@ pub async fn delete_by_id(
 
 pub async fn get_resource_tree(
     state: State<AppState>,
-    WithRejection(Json(id_params), _): WithRejection<Json<ByIdParams>, Res>,
+    WithRejection(Json(params), _): WithRejection<Json<ByCodeParams>, Res>,
 ) -> impl IntoResponse{
-    let res = Query::find_children_by_id(&state.db, id_params.id).await;
+    let res = Query::find_children_by_code(&state.db, params.code).await;
 
     match res {
         Ok(data) => Res::success(data),
