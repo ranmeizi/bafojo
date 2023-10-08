@@ -17,6 +17,7 @@ pub fn system_routes() -> RouterType {
             resource_api().layer(middleware::from_fn(jwt_layer)),
         )
         .nest("/user", user_api().layer(middleware::from_fn(jwt_layer)))
+        .nest("/role", role_api().layer(middleware::from_fn(jwt_layer)))
 }
 
 pub fn resource_api() -> RouterType {
@@ -37,4 +38,13 @@ pub fn user_api() -> RouterType {
         .route("/update", post(user::update))
         .route("/deleteById", post(user::delete_by_id))
         .route("/enabledUser",post(user::enable_user))
+}
+
+pub fn role_api() -> RouterType {
+    Router::new()
+        .route("/list", get(role::query))
+        .route("/findById", get(role::find_by_id))
+        .route("/create", post(role::create))
+        .route("/update", post(role::update))
+        .route("/deleteById", post(role::delete_by_id))
 }

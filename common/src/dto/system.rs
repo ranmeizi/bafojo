@@ -26,6 +26,7 @@ pub struct UserDto {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ResourceDto {
     pub id: i32,
     pub code: String,
@@ -42,6 +43,7 @@ pub struct ResourceDto {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ResourceNodeDto {
     pub id: i32,
     pub code: String,
@@ -57,8 +59,34 @@ pub struct ResourceNodeDto {
     pub updated_by: Option<i32>,
     pub children: RefCell<Vec<ResourceNodeDto>>,
     // pub children: Vec<ResourceNodeDto>,
-
 }
+
+/// RoleDto
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RoleDto {
+    /// 创建时间
+    pub created_at: Option<String>,
+
+    /// 创建人
+    pub created_by: Option<i32>,
+
+    /// 角色描述
+    pub desc: Option<String>,
+
+    /// 角色id
+    pub id: i32,
+
+    /// 角色名称
+    pub name: String,
+
+    /// 更新时间
+    pub updated_at: Option<String>,
+
+    /// 更新人
+    pub updated_by: Option<i32>,
+}
+
 
 fn format_datetime(option_datetime: Option<DateTime<Utc>>) -> Option<String> {
     if option_datetime.is_none() {
@@ -99,6 +127,20 @@ impl From<entity::sys_resource::Model> for ResourceDto {
             r#type: value.r#type,
             title: value.title,
             url: value.url,
+            desc: value.desc,
+            created_at: format_datetime(value.created_at),
+            created_by: value.created_by,
+            updated_at: format_datetime(value.updated_at),
+            updated_by: value.updated_by,
+        }
+    }
+}
+
+impl From<entity::sys_role::Model> for RoleDto {
+    fn from(value: entity::sys_role::Model) -> Self {
+        RoleDto {
+            id: value.id,
+            name: value.name,
             desc: value.desc,
             created_at: format_datetime(value.created_at),
             created_by: value.created_by,

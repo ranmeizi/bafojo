@@ -1,13 +1,14 @@
 use crate::entity::sys_role;
 use crate::{PageData, PageParams};
+use crate::util::mutation;
 use anyhow::{anyhow, Result};
-use bfj_common::{dto::system::UserDto, error::CustErr};
+use bfj_common::{dto::system::{RoleDto,UserDto}, error::CustErr};
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
     QueryOrder, Set,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub struct Query {}
 pub struct Mutation {}
@@ -19,12 +20,17 @@ impl Query {
     pub async fn get_role_list(
         db: &DatabaseConnection,
         page_params: PageParams,
-    ) -> Result<PageData<sys_role::Model>> {
+        params: QueryRoleParams,
+    ) -> Result<PageData<RoleDto>> {
         let page_num = page_params.page_num.unwrap_or(1);
         let page_size = page_params.page_size.unwrap_or(20);
 
         // 组装查询条件
         let mut s = sys_role::Entity::find();
+
+        if let Some(name) = params.name {
+            s = s.filter(sys_role::Column::Name.like(&format!("%{name}%")));
+        }
 
         // 分页
         let total = s.clone().count(db).await?;
@@ -32,7 +38,12 @@ impl Query {
             .order_by_asc(sys_role::Column::CreatedAt)
             .paginate(db, page_size);
         let total_pages = paginator.num_pages().await?;
-        let list = paginator.fetch_page(page_num - 1).await?;
+        let list: Vec<RoleDto> = paginator
+            .fetch_page(page_num - 1)
+            .await?
+            .iter()
+            .map(|m| m.clone().into())
+            .collect();
 
         Ok(PageData {
             record: list,
@@ -71,23 +82,27 @@ impl Mutation {
     pub async fn create_role(
         db: &DatabaseConnection,
         params: AddRoleParams,
-    ) -> Result<sys_role::Model> {
+        userinfo: &Option<UserDto>,
+    ) -> Result<RoleDto> {
         // 判断 uname 是否重复
         if Query::check_unique_name(db, &params.name).await? {
             // 响应错误
             return Err(CustErr::AppRuleError("用户名不可以重复".to_owned()).into());
         }
 
+        let create_info = mutation::get_create_info(userinfo);
+
         let role = sys_role::ActiveModel {
             name: Set(params.name),
             desc: Set(params.desc),
-            created_at: Set(Some(Utc::now())),
+            created_at: Set(create_info.created_at),
+            created_by: Set(create_info.created_by),
             ..Default::default()
         }
         .insert(db)
         .await?;
 
-        Ok(role)
+        Ok(role.into())
     }
 
     /**
@@ -96,20 +111,25 @@ impl Mutation {
     pub async fn update_role(
         db: &DatabaseConnection,
         params: UpdateRoleParams,
-    ) -> Result<sys_role::Model> {
+        userinfo: &Option<UserDto>,
+    ) -> Result<RoleDto> {
         let role: Option<sys_role::Model> = sys_role::Entity::find_by_id(params.id).one(db).await?;
 
         // Into ActiveModel
         let mut role: sys_role::ActiveModel = role.unwrap().into();
 
-        role.desc = Set(Some(params.desc));
+        role.name = Set(params.name);
+        role.desc = Set(params.desc);
+
+        let update_info = mutation::get_update_info(userinfo);
 
         // 更新修改时间
-        role.updated_at = Set(Some(Utc::now()));
+        role.updated_at = Set(update_info.updated_at);
+        role.updated_by = Set(update_info.updated_by);
 
         let role: sys_role::Model = role.update(db).await?;
 
-        Ok(role)
+        Ok(role.into())
     }
 
     /**
@@ -121,22 +141,32 @@ impl Mutation {
     }
 }
 
-/**
- * 创建角色参数
- */
-#[derive(Debug, Deserialize)]
-pub struct AddRoleParams {
-    name: String,
-    desc: Option<String>,
-    resourceIds: Vec<String>, // 资源id
+/// QueryRoleParams
+#[derive(Debug, Serialize, Deserialize)]
+pub struct QueryRoleParams {
+    /// 角色名称
+    name: Option<String>,
 }
 
-/**
- * 创建角色参数
- */
+/// AddRoleParams
 #[derive(Debug, Deserialize)]
+pub struct AddRoleParams {
+    /// 角色描述
+    desc: Option<String>,
+
+    /// 角色名称
+    name: String,
+}
+
+/// UpdateRoleParams
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateRoleParams {
+    /// 角色描述
+    desc: Option<String>,
+
+    /// 角色id
     id: i32,
-    desc: String,
-    resourceIds: Vec<String>, // 资源id
+
+    /// 角色名称
+    name: String,
 }
