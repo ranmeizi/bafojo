@@ -7,3 +7,5 @@ pub fn api() -> RouterType {
         .nest("/system", system::system_routes())
         .nest("/auth", auth::auth_api())
 }
+
+

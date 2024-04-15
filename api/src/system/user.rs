@@ -51,7 +51,7 @@ pub async fn find_by_id(
 pub async fn create(
     state: State<AppState>,
     Extension(auth_state): Extension<Arc<AuthState>>,
-    WithRejection(Json(params), _): WithRejection<Json<user::AddUserParams>, Res>,
+    WithRejection(Json(params), _): WithRejection<Json<user::UserCreateParam>, Res>,
 ) -> impl IntoResponse {
     let res = Mutation::create_user(&state.db, params,&auth_state.userinfo).await;
 

@@ -1,8 +1,11 @@
 use crate::entity::sys_role;
-use crate::{PageData, PageParams};
 use crate::util::mutation;
+use crate::{PageData, PageParams};
 use anyhow::{anyhow, Result};
-use bfj_common::{dto::system::{RoleDto,UserDto}, error::CustErr};
+use bfj_common::{
+    dto::system::{RoleDto, UserDto},
+    error::CustErr,
+};
 use chrono::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
@@ -118,8 +121,16 @@ impl Mutation {
         // Into ActiveModel
         let mut role: sys_role::ActiveModel = role.unwrap().into();
 
-        role.name = Set(params.name);
-        role.desc = Set(params.desc);
+        if let Some(name) = params.name {
+            // 有 name 则修改
+            role.name = Set(name);
+        }
+
+        if let Some(desc)=params.desc{
+            // 有 desc 则修改
+            role.desc = Set(Some(desc));
+        }
+       
 
         let update_info = mutation::get_update_info(userinfo);
 
@@ -152,21 +163,27 @@ pub struct QueryRoleParams {
 #[derive(Debug, Deserialize)]
 pub struct AddRoleParams {
     /// 角色描述
-    desc: Option<String>,
+    pub desc: Option<String>,
 
     /// 角色名称
-    name: String,
+    pub name: String,
+
+    /// 资源id数组
+    pub resource_ids: Option<Vec<i32>>,
 }
 
 /// UpdateRoleParams
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateRoleParams {
     /// 角色描述
-    desc: Option<String>,
+    pub desc: Option<String>,
 
     /// 角色id
-    id: i32,
+    pub id: i32,
 
     /// 角色名称
-    name: String,
+    pub name: Option<String>,
+
+    /// 资源id数组
+    pub resource_ids: Option<Vec<i32>>,
 }

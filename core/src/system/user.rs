@@ -12,7 +12,7 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
     QueryOrder, Set,
 };
-use serde::Deserialize;
+use serde::{Deserialize,Serialize};
 
 pub struct Query {}
 pub struct Mutation {}
@@ -100,7 +100,7 @@ impl Mutation {
      */
     pub async fn create_user(
         db: &DatabaseConnection,
-        params: AddUserParams,
+        params: UserCreateParam,
         userinfo: &Option<UserDto>,
     ) -> Result<UserDto> {
         // 判断 uname 是否重复
@@ -192,25 +192,49 @@ impl Mutation {
  * 创建用户参数
  */
 #[derive(Debug, Deserialize)]
-pub struct AddUserParams {
-    uname: String,
-    nickname: Option<String>,
-    sex: Option<String>,
-    mobile: Option<String>,
-    email: Option<String>,
+pub struct UserCreateParam {
+    /// 邮箱，邮箱
+    pub email: Option<String>,
+
+    /// 手机号，手机号
+    pub mobile: Option<String>,
+
+    /// 昵称，昵称
+    pub nickname: Option<String>,
+
+    pub role_ids: Option<Vec<i32>>,
+
+    /// 性别，1-男 2-女
+    pub sex: Option<String>,
+
+    /// 用户名，用户名
+    pub uname: String,
 }
 
 /**
  * 更新用户参数
  */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateUserParams {
+    /// 邮箱
+    pub email: Option<String>,
+
+    /// 用户id
     pub id: i32,
-    nickname: Option<String>,
-    sex: Option<String>,
-    mobile: Option<String>,
-    email: Option<String>,
+
+    /// 手机号
+    pub mobile: Option<String>,
+
+    /// 昵称
+    pub nickname: Option<String>,
+
+    /// 权限id数组
+    pub role_ids: Option<Vec<i32>>,
+
+    /// 性别 1-男 2-女
+    pub sex: Option<String>,
 }
+
 
 /**
  * 启用参数
