@@ -24,19 +24,21 @@ pub async fn json_timer<B>(req: Request<B>, next: Next<B>) -> impl IntoResponse 
 
     match serde_json::from_str::<serde_json::Value>(&body_text.clone()) {
         Ok(mut json) => {
-            let obj = json.as_object_mut().unwrap();
+            if let Some(obj) = json.as_object_mut() {
+                // 添加花费字段
+                obj.insert(
+                    String::from("cost"),
+                    Value::from(format!("{}ms", Local::now().timestamp_millis() - now)),
+                );
 
-            // 添加花费字段
-            obj.insert(
-                String::from("cost"),
-                Value::from(format!("{}ms", Local::now().timestamp_millis() - now)),
-            );
+                let body = serde_json::to_string(obj).unwrap();
 
-            let body = serde_json::to_string(obj).unwrap();
+                parts.headers.remove("content-length");
 
-            parts.headers.remove("content-length");
-
-            (parts, body.into_response())
+                (parts, body.into_response())
+            } else {
+                (parts, body_text.into_response())
+            }
         }
         _ => (parts, body_text.into_response()),
     }
